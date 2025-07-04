@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Панель Мастера";
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>@ViewData["Message"]</p>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-tasks"></i> Мои Задания</h5>
+                    <p class="card-text">Просмотр и управление назначенными задачами.</p>
+                    <a asp-action="AssignedTasks" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

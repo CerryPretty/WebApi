@@ -1,0 +1,71 @@
+﻿@model WebUI.Models.RegisterModel
+
+@{
+    Layout = "_LoginRegisterLayout"; 
+    ViewData["Title"] = "Регистрация";
+}
+
+<div class="card my-5 mx-auto" style="max-width: 500px;">
+    <div class="card-header">
+        <i class="fas fa-user-plus"></i>
+        <h5 class="mb-0">Регистрация пользователя</h5>
+    </div>
+
+    <form asp-action="Register" class="card-body">
+        @Html.AntiForgeryToken()
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">
+                <i class="fas fa-user"></i> Имя
+            </label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">
+                <i class="fas fa-envelope"></i> Электронная почта
+            </label>
+            <input asp-for="Email" class="form-control" type="email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">
+                <i class="fas fa-lock"></i> Пароль
+            </label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PasswordConfirm" class="form-label">
+                <i class="fas fa-lock"></i> Подтверждение пароля
+            </label>
+            <input asp-for="PasswordConfirm" class="form-control" type="password" />
+            <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Зарегистрировать
+            </button>
+            <a asp-action="Login" asp-controller="Account" class="btn btn-link text-decoration-none">
+                Уже есть аккаунт? Войти
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

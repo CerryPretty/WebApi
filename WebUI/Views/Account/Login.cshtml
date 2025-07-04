@@ -1,0 +1,51 @@
+﻿@model WebUI.Models.LoginModel
+
+@{
+    Layout = "_LoginRegisterLayout"; 
+    ViewData["Title"] = "Вход в аккаунт";
+}
+
+<div class="card my-5 mx-auto" style="max-width: 500px;">
+    <div class="card-header">
+        <i class="fas fa-sign-in-alt"></i>
+        <h5 class="mb-0">Вход пользователя</h5>
+    </div>
+
+    <form asp-action="Login" class="card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="UserName" class="form-label">
+                <i class="fas fa-user"></i> Имя пользователя
+            </label>
+            <input asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">
+                <i class="fas fa-lock"></i> Пароль
+            </label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input asp-for="RememberMe" class="form-check-input" />
+            <label asp-for="RememberMe" class="form-check-label"></label>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-arrow-right"></i> Войти
+            </button>
+            <a asp-action="Register" asp-controller="Account" class="btn btn-link text-decoration-none">
+                Зарегистрироваться
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

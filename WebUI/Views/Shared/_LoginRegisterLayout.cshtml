@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Калинковичский РМЗ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" href="~/images/favicon.png" type="image/png">
+    <style>
+        /* --- Стили для скрытия верхней панели Google Translate (скопированы из основного _Layout) --- */
+        body {
+            top: 0 !important;
+            margin-top: 0 !important;
+        }
+
+        .goog-te-banner-frame.skiptranslate {
+            display: none !important;
+            height: 0 !important;
+            visibility: hidden !important;
+            overflow: hidden !important;
+        }
+
+        .goog-tooltip, .goog-tooltip:hover {
+            display: none !important;
+        }
+
+        .goog-text-highlight {
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+        /* --- Конец стилей для скрытия верхней панели Google Translate --- */
+    </style>
+</head>
+<body>
+    <div id="google_translate_element" style="display: none;"></div>
+
+    <div class="main-content">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script type="text/javascript">
+        // Глобальная переменная для хранения текущего языка Google Translate
+        let currentGoogleTranslateLang = 'ru'; // Инициализируем с языком по умолчанию
+
+        // Функция, вызываемая после загрузки виджета Google Translate
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ru', // Установите ваш основной язык сайта
+                includedLanguages: 'en,be', // Языки, на которые можно перевести
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false // Не отображать стандартный виджет
+            }, 'google_translate_element');
+
+            // Добавляем обработчик события 'change' к скрытому элементу select Google Translate
+            // Делаем это с небольшой задержкой, чтобы убедиться, что элемент уже создан
+            setTimeout(() => {
+                const gtSelect = document.querySelector('#google_translate_element select');
+                if (gtSelect) {
+                    gtSelect.addEventListener('change', function() {
+                        const selectedValue = this.value; // Например, "/ru/en"
+                        const targetLang = selectedValue.split('/')[2]; // Извлекаем "en"
+                        currentGoogleTranslateLang = targetLang;
+                        document.body.setAttribute('data-current-lang', targetLang); // Устанавливаем data-атрибут на body
+                        console.log('Google Translate switched to:', currentGoogleTranslateLang);
+                    });
+
+                    // Устанавливаем начальное значение data-атрибута и глобальной переменной
+                    // при загрузке страницы, если Google Translate уже перевел страницу
+                    const initialGTValue = gtSelect.value;
+                    if (initialGTValue) {
+                        const initialTargetLang = initialGTValue.split('/')[2];
+                        currentGoogleTranslateLang = initialTargetLang;
+                        document.body.setAttribute('data-current-lang', initialTargetLang);
+                        console.log('Initial Google Translate language:', currentGoogleTranslateLang);
+                    }
+                }
+            }, 500); // Небольшая задержка, чтобы виджет успел создать элементы
+        }
+
+        // Функция для программного переключения языка через скрытый виджет Google Translate
+        // (Она не будет вызываться напрямую из этого макета, но нужна, чтобы
+        // виджет правильно инициализировался и мог считывать куки)
+        function changeLanguage(langCode) {
+            const selectElement = document.querySelector('#google_translate_element select');
+
+            if (selectElement) {
+                const optionToSelect = Array.from(selectElement.options).find(option => option.value.endsWith('/' + langCode));
+
+                if (optionToSelect) {
+                    selectElement.value = optionToSelect.value;
+                    const event = new Event('change');
+                    selectElement.dispatchEvent(event);
+
+                    currentGoogleTranslateLang = langCode;
+                    document.body.setAttribute('data-current-lang', langCode);
+                    document.cookie = "googtrans=/ru/" + langCode + "; path=/";
+
+                } else {
+                    console.error("Опция языка '" + langCode + "' не найдена в выпадающем списке Google Translate.");
+                    document.cookie = "googtrans=/ru/" + langCode + "; path=/";
+                    window.location.reload();
+                }
+            } else {
+                console.error("Элемент выбора Google Translate не найден. Виджет, возможно, не инициализирован.");
+                document.cookie = "googtrans=/ru/" + langCode + "; path=/";
+                window.location.reload();
+            }
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

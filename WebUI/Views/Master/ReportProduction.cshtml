@@ -1,0 +1,123 @@
+﻿@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+@model WebUI.Models.ReportProductionViewModel
+
+@{
+    ViewData["Title"] = _localizer["Отчет о Производстве"];
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>@_localizer["Заполните информацию о выполненном заказе."]</p>
+
+    @* Blocs for TempData messages *@
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @TempData["InfoMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <hr />
+
+    <div class="card shadow-sm p-4 bg-white">
+        <form asp-action="ReportProduction" asp-controller="Master" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="SelectedOrderId" class="form-label">@_localizer["Выберите Заказ"]</label>
+                <select asp-for="SelectedOrderId" asp-items="Model.CompletedOrders" class="form-select">
+                    <option value="">@_localizer["-- Выберите заказ --"]</option>
+                </select>
+                <span asp-validation-for="SelectedOrderId" class="text-danger"></span>
+            </div>
+
+            @* --- ADD THIS BLOCK TO DISPLAY MANAGER COMMENTS --- *@
+            @if (!string.IsNullOrEmpty(Model.ManagerComments))
+            {
+                <div class="mb-3">
+                    <label class="form-label">@_localizer["Комментарии Менеджера"]</label>
+                    <textarea class="form-control" rows="3" readonly>@Model.ManagerComments</textarea>
+                </div>
+            }
+            else if (Model.SelectedOrderId.HasValue) // Only show "No comments" if an order is actually selected
+            {
+                <div class="mb-3">
+                    <label class="form-label">@_localizer["Комментарии Менеджера"]</label>
+                    <textarea class="form-control" rows="3" readonly>@_localizer["Комментарии менеджера отсутствуют."]</textarea>
+                </div>
+            }
+            @* --- END ADDED BLOCK --- *@
+
+            @* --- NEW BLOCK TO DISPLAY SERVICE NAMES --- *@
+            @if (!string.IsNullOrEmpty(Model.ServiceNamesForSelectedOrder) && Model.SelectedOrderId.HasValue)
+            {
+                <div class="mb-3">
+                    <label class="form-label">@_localizer["Названия Услуг"]</label>
+                    <input type="text" class="form-control" value="@Model.ServiceNamesForSelectedOrder" readonly />
+                </div>
+            }
+            else if (Model.SelectedOrderId.HasValue)
+            {
+                <div class="mb-3">
+                    <label class="form-label">@_localizer["Названия Услуг"]</label>
+                    <input type="text" class="form-control" value="@_localizer["Услуги не указаны для этого заказа."]" readonly />
+                </div>
+            }
+            @* --- END NEW BLOCK --- *@
+
+
+            <div class="mb-3">
+                <label asp-for="MasterComments" class="form-label">@_localizer["Комментарии Мастера"]</label>
+                <textarea asp-for="MasterComments" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="MasterComments" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Cost" class="form-label">@_localizer["Фактическая Стоимость"]</label>
+                <input asp-for="Cost" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="Cost" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">@_localizer["Сохранить Отчет"]</button>
+            <a asp-action="AssignedTasks" class="btn btn-secondary">@_localizer["Отмена"]</a> @* Changed to AssignedTasks *@@* Changed to AssignedTasks action *@
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            // Function to load order details via AJAX
+            $('#SelectedOrderId').change(function () {
+                var selectedOrderId = $(this).val();
+                if (selectedOrderId) {
+                    // Redirect to the GET action with the selected OrderId
+                    // This will reload the page with pre-filled data
+                    window.location.href = '@Url.Action("ReportProduction", "Master")' + '?orderId=' + selectedOrderId;
+                } else {
+                    // If no order is selected, clear comments and cost or reset form
+                    window.location.href = '@Url.Action("ReportProduction", "Master")';
+                }
+            });
+        });
+    </script>
+}

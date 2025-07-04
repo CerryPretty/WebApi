@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Создать новую роль";
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="CreateRole" method="post">
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label for="roleName" class="form-label">Имя новой роли:</label>
+                    <input type="text" id="roleName" name="roleName" class="form-control" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-save me-2"></i> Создать роль
+                </button>
+                <a asp-action="ManageRoles" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i> Отмена
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

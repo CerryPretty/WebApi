@@ -1,0 +1,346 @@
+﻿@{
+    ViewData["Title"] = "Добро пожаловать";
+}
+
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <div class="hero-jumbotron text-center p-5 bg-light rounded-3 shadow-sm mb-5">
+        <h1 class="display-4 mb-3">
+            Добро пожаловать в<br>
+            <strong>Калинковичский ремонтно-механический завод!</strong>
+        </h1>
+        <p class="lead text-muted">
+            Ваш надёжный партнёр в области ремонта оборудования и техники. Управляйте своими заказами легко и эффективно.
+        </p>
+    </div>
+}
+
+@if (!User.Identity.IsAuthenticated || User.IsInRole("Клиент"))
+{
+    <div class="container my-5">
+        <div class="row justify-content-center text-center mb-5 bg-light p-4 rounded-3 shadow-sm">
+            <div class="col-md-8">
+                <h2 class="mb-4 text-primary">Быстрые действия</h2>
+                <p class="lead">Воспользуйтесь основными функциями нашего сервиса:</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center g-4">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 shadow-lg border-primary border-3 rounded-3 transform-on-hover">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                        <div class="icon-circle bg-primary text-white mb-3">
+                            <i class="fas fa-plus-circle fa-2x"></i>
+                        </div>
+                        <h5 class="card-title text-primary fw-bold mb-3">Создать новый заказ на ремонт</h5>
+                        <p class="card-text text-center text-muted flex-grow-1">
+                            Оформите новую заявку на ремонт вашего оборудования или техники всего за несколько шагов.
+                        </p>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Home" asp-action="Catalog" class="btn btn-primary btn-lg mt-3">
+                                <i class="fas fa-list-alt me-2"></i> Выбрать услугу и оформить
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-lg mt-3">
+                                <i class="fas fa-sign-in-alt me-2"></i> Войти для оформления
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 shadow-lg border-success border-3 rounded-3 transform-on-hover">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                        <div class="icon-circle bg-success text-white mb-3">
+                            <i class="fas fa-clipboard-list fa-2x"></i> 
+                        </div>
+                        <h5 class="card-title text-success fw-bold mb-3">Просмотр статуса заказов</h5> 
+                        <p class="card-text text-center text-muted flex-grow-1">
+                            Отслеживайте текущий статус выполнения ваших заказов и просматривайте историю обращений.
+                        </p>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Client" asp-action="MyOrders" class="btn btn-success btn-lg mt-3">
+                                <i class="fas fa-eye me-2"></i> Мои заказы
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-success btn-lg mt-3">
+                                <i class="fas fa-sign-in-alt me-2"></i> Войти для просмотра
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 shadow-lg border-info border-3 rounded-3 transform-on-hover">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                        <div class="icon-circle bg-info text-white mb-3">
+                            <i class="fas fa-wrench fa-2x"></i>
+                        </div>
+                        <h5 class="card-title text-info fw-bold mb-3">Каталог услуг и продукции</h5>
+                        <p class="card-text text-center text-muted flex-grow-1">
+                            Ознакомьтесь с полным перечнем наших ремонтных услуг и доступной продукцией.
+                        </p>
+                        <a asp-controller="Home" asp-action="Catalog" class="btn btn-info btn-lg mt-3">
+                            <i class="fas fa-tools me-2"></i> Смотреть каталог
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<div class="container my-5">
+    <div class="row justify-content-center text-center mb-5 bg-light p-4 rounded-3 shadow-sm">
+        <div class="col-md-8">
+            <h2 class="mb-4 text-secondary">Последние новости</h2>
+            <p class="lead text-muted">Будьте в курсе событий Калинковичского РМЗ.</p>
+        </div>
+    </div>
+
+   
+    <div class="row justify-content-center g-4" id="krmz-news-container">
+        <div class="col-12 text-center p-4" id="news-loading-message">Загрузка новостей...</div>
+ 
+    </div>
+
+
+    <div class="text-center mt-4">
+        <a href="https://krmz.by/news.php" target="_blank" class="btn btn-outline-secondary btn-sm">
+            Все новости на сайте РМЗ <i class="fas fa-external-link-alt ms-1"></i>
+        </a>
+    </div>
+</div>
+
+
+@section Scripts {
+    <style>
+      
+        .hero-jumbotron {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-bottom: 5px solid var(--bs-primary);
+        }
+
+        
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+      
+        .card.transform-on-hover {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+            .card.transform-on-hover:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2);
+            }
+
+     
+        .card-body .card-text {
+            min-height: 50px;
+        }
+
+       
+        .full-article-content img {
+            max-width: 100%; /* Изображения не должны выходить за пределы блока */
+            height: auto;
+            display: block; /* Убирает лишние пробелы под изображениями */
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .full-article-content iframe,
+        .full-article-content video {
+            max-width: 100%;
+            height: auto; /* Или задайте фиксированную высоту, если нужно */
+            display: block;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Стили для карточек новостей */
+        .news-card .card-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .news-card .news-image {
+            width: 150px; /* Увеличенный размер для соответствия изображению */
+            height: 150px; /* Увеличенный размер для соответствия изображению */
+            border-radius: 50%; /* Круглая форма */
+            object-fit: cover; /* Обрезка изображения для заполнения круга */
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-card .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--bs-primary);
+        }
+
+        .news-card .article-short-description {
+            color: var(--bs-secondary);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            min-height: 40px; /* Единая высота для описаний */
+            flex-grow: 1; /* Позволяет тексту занимать доступное пространство, выравнивая кнопки */
+        }
+
+        .news-card .btn-link {
+            font-size: 0.85rem;
+        }
+    </style>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const newsContainer = document.getElementById('krmz-news-container');
+            const loadingMessage = document.getElementById('news-loading-message');
+
+            // ОБНОВЛЕННЫЕ ID статей, которые вы хотите получить и отобразить
+            const articleIdsToFetch = [
+                103, // https://krmz.by/news.php?readmore=103
+                102,
+                101  // https://krmz.by/news.php?readmore=101
+            ];
+            const baseUrl = 'https://krmz.by'; // Базовый URL для разрешения относительных путей изображений и ссылок
+
+            // Функция для отображения статей в DOM
+            function displayArticle(article) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = article.fullContentHtml;
+                const firstImage = tempDiv.querySelector('img');
+
+                let imageUrl = firstImage ? firstImage.getAttribute('src') : null;
+
+                if (imageUrl) {
+                    if (!imageUrl.startsWith('http')) {
+                        try {
+                            imageUrl = new URL(imageUrl, baseUrl).href;
+                        } catch (e) {
+                            console.warn("Не удалось разрешить URL изображения для карточки, используется по умолчанию:", imageUrl, e);
+                            imageUrl = '/images/default-news-image.png'; // Убедитесь, что у вас есть этот файл
+                        }
+                    }
+                } else {
+                    imageUrl = '/images/default-news-image.png'; // Используем изображение по умолчанию, если нет
+                }
+
+                const newsHtml = `
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card news-card h-100 shadow-lg rounded-3 transform-on-hover">
+                            <div class="card-body">
+                                <img src="${imageUrl}" alt="${article.title}" class="news-image img-fluid" loading="lazy">
+                                <h5 class="card-title text-center">${article.title}</h5>
+                                <p class="card-text text-muted article-short-description">${article.description}</p>
+                                <a href="${baseUrl}/news.php?readmore=${article.id}" target="_blank" class="btn btn-link btn-sm mt-auto">
+                                    Читать полностью &raquo;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                newsContainer.insertAdjacentHTML('beforeend', newsHtml);
+            }
+
+            // Изначальная загрузка статей
+            if (newsContainer) {
+                loadingMessage.style.display = 'block'; // Показываем сообщение о загрузке
+                newsContainer.innerHTML = ''; // Очищаем существующее содержимое
+                newsContainer.appendChild(loadingMessage); // Добавляем сообщение о загрузке обратно
+
+                const fetchPromises = [];
+
+                articleIdsToFetch.forEach(articleId => {
+                    fetchPromises.push(
+                        fetch(`/api/krmz-article/${articleId}`) // Запрос к вашей прокси-точке
+                            .then(response => {
+                                if (!response.ok) {
+                                    console.warn(`Статья с ID ${articleId} не найдена или ошибка прокси: ${response.status} ${response.statusText}`);
+                                    return null;
+                                }
+                                return response.text();
+                            })
+                            .then(html => {
+                                if (!html) return null;
+
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+
+                                const titleElement = doc.querySelector('h1.news-title') ||
+                                                     doc.querySelector('h2.article-title') ||
+                                                     doc.querySelector('div.content h1');
+
+                                const fullContentElement = doc.querySelector('div.news-content') ||
+                                                           doc.querySelector('div.article-text') ||
+                                                           doc.querySelector('div.content');
+
+                                // ИЗМЕНЕНИЕ ЗДЕСЬ: убираем отображение ID в запасном заголовке
+                                const title = titleElement ? titleElement.textContent.trim() : `Новость`; // Или "" для полной пустоты
+                                const fullContentHtml = fullContentElement ? fullContentElement.innerHTML : '<p>Полный текст статьи не найден или не удалось извлечь.</p>';
+
+                                let description = fullContentElement ? fullContentElement.textContent.trim() : 'Описание новости отсутствует.';
+                                description = description.replace(/(\r\n|\n|\r)/gm, " ").trim();
+                                if (description.length > 150) {
+                                    description = description.substring(0, 150) + '...';
+                                } else if (description.length === 0) {
+                                    description = "Краткое описание новости отсутствует.";
+                                }
+
+                                return {
+                                    id: articleId,
+                                    title: title,
+                                    description: description,
+                                    fullContentHtml: fullContentHtml
+                                };
+                            })
+                            .catch(error => {
+                                console.error(`Ошибка при загрузке статьи #${articleId}:`, error);
+                                return null;
+                            })
+                    );
+                });
+
+                Promise.all(fetchPromises)
+                    .then(articles => {
+                        loadingMessage.style.display = 'none';
+
+                        const fetchedArticles = articles.filter(article => article !== null);
+
+                        if (fetchedArticles.length === 0) {
+                            newsContainer.innerHTML = '<div class="col-12 text-center p-4 text-danger">Не удалось загрузить новости. Проверьте правильность настроек прокси и селекторов HTML.</div>';
+                            return;
+                        }
+
+                        fetchedArticles.forEach(article => displayArticle(article));
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при агрегации новостей:', error);
+                        loadingMessage.style.display = 'none';
+                        newsContainer.innerHTML = '<div class="col-12 text-center p-4 text-danger">Не удалось загрузить новости. Пожалуйста, попробуйте позже.<br>Возможно, требуется настройка серверного прокси или ошибка в обработке данных.</div>';
+                    });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,145 @@
+﻿@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+@model WebUI.Models.OrderDetailViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = @_localizer["Оплата Заказа"] + $" #{Model.OrderNumber}";
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>@_localizer["Проверьте детали заказа перед оплатой."]</p>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <hr />
+
+    <div class="card shadow-sm p-4 bg-white mb-4">
+        <h5 class="card-title mb-3">@_localizer["Информация о Заказе"] #@Model.OrderNumber</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="order-detail-item mb-2">
+                    <span class="detail-label">@_localizer["Дата создания:"]</span>
+                    <span class="detail-value">@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</span>
+                </div>
+                <div class="order-detail-item mb-2">
+                    <span class="detail-label">@_localizer["Клиент:"]</span>
+                    <span class="detail-value">@Model.ClientDisplayName</span>
+                </div>
+                <div class="order-detail-item mb-2">
+                    <span class="detail-label">@_localizer["Менеджер:"]</span>
+                    <span class="detail-value">@Model.ManagerDisplayName</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="order-detail-item mb-2">
+                    <span class="detail-label">@_localizer["Статус:"]</span>
+                    <span class="detail-value">@Model.Status?.StatusName</span>
+                </div>
+                <div class="order-detail-item mb-2">
+                    <span class="detail-label">@_localizer["Мастер:"]</span>
+                    <span class="detail-value">@Model.MasterDisplayName</span>
+                </div>
+                <div class="order-detail-item mb-2">
+                    <span class="detail-label">@_localizer["Дата завершения:"]</span>
+                    <span class="detail-value">@(Model.CompletionDate?.ToString("dd.MM.yyyy HH:mm") ?? _localizer["Не Завершено"])</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-detail-item mt-3">
+            <span class="detail-label">@_localizer["Описание проблемы:"]</span>
+            <span class="detail-value">@(string.IsNullOrEmpty(Model.ProblemDescription) ? _localizer["Не указано"] : Model.ProblemDescription)</span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.MasterComments))
+        {
+            <div class="order-detail-item mt-3">
+                <span class="detail-label">@_localizer["Комментарии Мастера:"]</span>
+                <span class="detail-value">@Model.MasterComments</span>
+            </div>
+        }
+
+        @if (Model.OrderServices != null && Model.OrderServices.Any())
+        {
+            <div class="services-section mt-4">
+                <h6 class="section-title">
+                    <i class="bi bi-list-check me-2"></i>
+                    @_localizer["Услуги в заказе"]
+                    <span class="badge bg-primary-soft rounded-pill ms-2">@Model.OrderServices.Count</span>
+                </h6>
+                <div class="services-list">
+                    @foreach (var os in Model.OrderServices)
+                    {
+                        <div class="service-item">
+                            <div class="service-info">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>@os.Service?.ServiceName</span>
+                            </div>
+                            <div class="service-price">
+                                <span class="quantity">@os.Quantity @_localizer["шт."]</span>
+                                <span class="price">@os.UnitPrice.ToString("C", new CultureInfo("be-BY"))</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="order-total mt-4">
+            <span class="total-label">@_localizer["Итого к оплате:"]</span>
+            <span class="total-value display-6 fw-bold text-primary">@Model.Cost?.ToString("C", new CultureInfo("be-BY")) </span>
+        </div>
+    </div>
+
+    @if (Model.Status?.Id == 3) 
+    {
+        <div class="text-center mt-4">
+            <form asp-controller="Client" asp-action="ProcessPayment" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="@Model.Id" />
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-wallet2 me-2"></i>@_localizer["Оплатить Заказ"]
+                </button>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center mt-4">
+            @_localizer["Заказ не готов к оплате или уже оплачен."].
+        </div>
+    }
+
+    <div class="text-center mt-3">
+        <a asp-action="MyOrders" asp-controller="Client" class="btn btn-secondary">@_localizer["Вернуться к Моим Заказам"]</a>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="~/css/orders.css" asp-append-version="true" /> 
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    
+    <script>
+        
+    </script>
+}

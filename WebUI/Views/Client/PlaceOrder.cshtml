@@ -1,0 +1,283 @@
+﻿@model WebUI.Models.OrderFormViewModel
+@using System.Globalization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = _localizer["РазместитьЗаказ"]; // "Place Order"
+    // Consider adding a custom class to the body for specific page styling
+    // ViewData["BodyClass"] = "order-page-background";
+}
+
+<style>
+    /* Custom Styles for a more polished look */
+    /* Add this to your main CSS file (e.g., site.css) or embed here for demonstration */
+
+    body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); /* Soft gradient background */
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .order-container-wrapper {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 0; /* Add some vertical padding */
+    }
+
+    .beautiful-card {
+        border-radius: 1.5rem; /* More rounded corners */
+        overflow: hidden; /* Ensures header/footer rounding applies */
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15), 0 0.5rem 1rem rgba(0, 0, 0, 0.1); /* Stronger, more elegant shadow */
+        background-color: #ffffff;
+        animation-duration: 0.8s; /* Faster animation */
+    }
+
+        .beautiful-card .card-header {
+            background: linear-gradient(45deg, #007bff, #0056b3); /* Blue gradient header */
+            color: white;
+            padding: 2rem; /* More padding for header */
+            border-bottom: none; /* Remove default border */
+            position: relative;
+        }
+
+            .beautiful-card .card-header h2 {
+                font-weight: 700; /* Bolder header text */
+                font-size: 2.2rem;
+                letter-spacing: 0.05em;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            }
+
+        .beautiful-card .card-body {
+            padding: 3.5rem; /* Generous padding inside body */
+        }
+
+    .form-label {
+        font-weight: 600; /* Slightly bolder labels */
+        color: #34495e; /* Darker text for labels */
+        margin-bottom: 0.6rem;
+        font-size: 1.05rem;
+    }
+
+    .form-control-lg {
+        border-radius: 0.75rem; /* More rounded inputs */
+        padding: 0.8rem 1.25rem;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .form-control-lg:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Primary color focus ring */
+        }
+
+    .input-group-text {
+        border-radius: 0.75rem 0 0 0.75rem !important; /* Rounded corners for input group addon */
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
+
+    textarea.form-control {
+        min-height: 120px; /* Taller textarea */
+        resize: vertical; /* Allow vertical resizing */
+    }
+
+    .total-cost-section {
+        background-color: #e6f7ff; /* Light blue background for total cost */
+        border-left: 5px solid #007bff; /* Primary color border on left */
+        padding: 1.8rem;
+        border-radius: 0.75rem;
+        margin-top: 3rem; /* More space above */
+        animation-duration: 0.5s;
+    }
+
+        .total-cost-section h3 {
+            margin-bottom: 0;
+            font-size: 1.5rem;
+        }
+
+    .total-cost-display {
+        font-size: 2.8rem !important; /* Significantly larger total cost */
+        font-weight: 800 !important; /* Even bolder */
+        color: #28a745; /* A strong success green */
+        letter-spacing: -0.03em;
+    }
+
+    .action-buttons .btn {
+        min-width: 180px; /* Wider buttons */
+        padding: 0.9rem 2.5rem;
+        border-radius: 2rem; /* Pill-shaped buttons */
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.3s ease;
+    }
+
+    .action-buttons .btn-primary {
+        background: linear-gradient(45deg, #28a745, #218838); /* Green gradient for primary button */
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(40, 167, 69, 0.3);
+    }
+
+        .action-buttons .btn-primary:hover {
+            transform: translateY(-3px); /* Lift on hover */
+            box-shadow: 0 0.7rem 1.5rem rgba(40, 167, 69, 0.4);
+        }
+
+    .action-buttons .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        background-color: transparent;
+    }
+
+        .action-buttons .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+    /* Small animation for success/error messages */
+    .alert {
+        animation: fadeInDown 0.5s ease-out;
+    }
+
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="order-container-wrapper">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 text-center mb-5 text-primary animate__animated animate__zoomIn">
+                    @ViewData["Title"]
+                </h1>
+
+                <div class="card beautiful-card animate__animated animate__fadeInUp">
+                    <div class="card-header text-white text-center rounded-top-4">
+                        <h2 class="mb-0">@_localizer["Оформление нового заказа"]</h2>
+                        <p class="mt-2 mb-0 text-white-75">@_localizer["Быстро и легко создайте ваш запрос на услугу"]</p>
+                    </div>
+                    <div class="card-body">
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show animate__animated animate__headShake" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show animate__animated animate__bounceIn" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <p class="lead text-center text-muted mb-5">
+                            @_localizer["Пожалуйста, заполните форму ниже, чтобы разместить ваш заказ. Мы свяжемся с вами в ближайшее время!"]
+                        </p>
+
+                        <form asp-action="PlaceOrder" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-4 fs-6"></div>
+
+                            <input type="hidden" asp-for="ServiceId" />
+                            <input type="hidden" asp-for="UnitPrice" />
+
+                            <div class="mb-4">
+                                <label asp-for="ServiceName" class="form-label">@_localizer["Название услуги:"]</label>
+                                <input asp-for="ServiceName" class="form-control form-control-lg bg-light" readonly />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">@_localizer["Цена за единицу:"]</label>
+                                <p class="form-control-plaintext fs-5 text-success" id="unitPriceDisplay">@Model.UnitPrice.ToString("C", new CultureInfo("be-BY"))</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Quantity" class="form-label">@_localizer["Количество:"]</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text"><i class="bi bi-calculator"></i></span> 
+                                    <input asp-for="Quantity" class="form-control" type="number" **min="1" value="1" ** id="quantityInput" />
+                                </div>
+                                <span asp-validation-for="Quantity" class="text-danger mt-1 d-block"></span>
+                            </div>
+
+                            <div class="mb-5">
+                                <label asp-for="ProblemDescription" class="form-label">@_localizer["Описание проблемы:"]</label>
+                                <textarea asp-for="ProblemDescription" class="form-control form-control-lg" rows="6" placeholder="@_localizer["Опишите вашу проблему или требования к услуге здесь..."]"></textarea>
+                                <span asp-validation-for="ProblemDescription" class="text-danger mt-1 d-block"></span>
+                            </div>
+
+                            <div class="total-cost-section animate__animated animate__fadeIn">
+                                <h3 class="d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-wallet2 me-2 text-primary"></i>@_localizer["Итоговая стоимость:"]</span>
+                                    <span id="totalCostDisplay" class="total-cost-display">
+                                        @((Model.Quantity * Model.UnitPrice).ToString("C", new CultureInfo("be-BY")))
+                                    </span>
+                                </h3>
+                            </div>
+
+                            <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-5 action-buttons">
+                                <button type="submit" class="btn btn-primary animate__animated animate__pulse animate__infinite">
+                                    <i class="bi bi-send-fill me-2"></i>@_localizer["Подтвердить заказ"]
+                                </button>
+                                <a asp-action="Catalog" asp-controller="Home" asp-route-id="@Model.ServiceId" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left-circle me-2"></i>@_localizer["Вернуться к услугам"]
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const quantityInput = document.getElementById('quantityInput');
+            const totalCostDisplay = document.getElementById('totalCostDisplay');
+
+            // Pass the raw decimal UnitPrice directly from the model to JavaScript for robustness
+            const unitPrice = @Model.UnitPrice.ToString(CultureInfo.InvariantCulture);
+
+            function updateTotalCost() {
+                let quantity = parseInt(quantityInput.value);
+
+                // Ensure quantity is at least 1
+                if (isNaN(quantity) || quantity < 1) {
+                    quantity = 1; // Default to 1 if invalid or less than 1
+                    quantityInput.value = 1; // Update the input field
+                }
+
+                const totalCost = quantity * unitPrice;
+
+                // For Belarus, the currency is BYN. Explicitly setting it for consistency.
+                totalCostDisplay.textContent = totalCost.toLocaleString('be-BY', { style: 'currency', currency: 'BYN' });
+            }
+            
+            // Initial update in case quantity is pre-filled or invalid
+            updateTotalCost();
+
+            // Listen for changes on the quantity input
+            quantityInput.addEventListener('input', updateTotalCost);
+        });
+    </script>
+}

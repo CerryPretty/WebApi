@@ -1,0 +1,113 @@
+﻿@model WebApi.Models.ServiceCatalog
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using System.Globalization
+
+@{
+    ViewData["Title"] = Localizer["ДеталиУслуги"];
+}
+
+@* Убедитесь, что ваш кастомный CSS подключен в _Layout.cshtml ПОСЛЕ Bootstrap CSS *@
+@* Пример: <link rel="stylesheet" href="~/css/custom.css" /> *@
+
+<div class="container my-5 fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card service-details-card shadow-lg p-4 p-md-5 mb-5 border-0 rounded-4 transform-on-hover">
+                <div class="card-body">
+                    <div class="image-wrapper mb-5">
+                        <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? Url.Content("~/images/logo.png") : Model.ImageUrl)"
+                             class="img-fluid rounded-3 service-details-img" alt="@Model.ServiceName">
+                    </div>
+
+                    <div class="row details-grid">
+                        <div class="col-md-6 mb-4">
+                            <div class="detail-item">
+                                <i class="fas fa-cubes detail-icon"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">@Localizer["НаименованиеУслуги"]:</h6>
+                                    <p class="fw-bold fs-5 mb-0">@Model.ServiceName</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="detail-item">
+                                <i class="fas fa-dollar-sign detail-icon"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">@Localizer["ЦенаУслуги"]:</h6>
+                                    <p class="fw-bold fs-4 text-success mb-0">@Model.Price.ToString("C", new CultureInfo("be-BY"))</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <div class="col-12 mb-4">
+                                <div class="detail-item">
+                                    <i class="fas fa-info-circle detail-icon"></i>
+                                    <div>
+                                        <h6 class="text-muted mb-1">@Localizer["Описание"]:</h6>
+                                        <p class="mb-0">@Model.Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Category))
+                        {
+                            <div class="col-md-6 mb-4">
+                                <div class="detail-item">
+                                    <i class="fas fa-tag detail-icon"></i>
+                                    <div>
+                                        <h6 class="text-muted mb-1">@Localizer["Категория"]:</h6>
+                                        <p class="mb-0">@Localizer[Model.Category]</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-md-6 mb-4">
+                            <div class="detail-item">
+                                <i class="fas fa-clock detail-icon"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">@Localizer["ДатаСоздания"]:</h6>
+                                    <p class="mb-0">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <div class="col-md-6 mb-4">
+                                <div class="detail-item">
+                                    <i class="fas fa-sync-alt detail-icon"></i>
+                                    <div>
+                                        <h6 class="text-muted mb-1">@Localizer["ПоследнееОбновление"]:</h6>
+                                        <p class="mb-0">@Model.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div> @* End .details-grid *@
+
+                    <hr class="my-5 border-primary border-2 opacity-75">
+
+                    <div class="text-center mt-5">
+                        <a asp-action="Catalog" asp-controller="Home" class="btn btn-secondary me-3 btn-lg animated-btn">
+                            <i class="fas fa-arrow-left me-2"></i> @Localizer["ВернутьсяККаталогу"]
+                        </a>
+                        <a asp-action="PlaceOrder" asp-controller="Client" asp-route-serviceId="@Model.Id" class="btn btn-primary btn-lg animated-btn">
+                            <i class="fas fa-shopping-cart me-2"></i> @Localizer["СделатьЗаказ"]
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        {{-- **Убедитесь, что Font Awesome JS подключен здесь** --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" integrity="sha512-u3fPA7V8qQkM+yN9GAfJUC5S7Q3gOQePN3rVWtK3s9R/Vw3tY/WbJ/b9sQJmQ/WjK2w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+}

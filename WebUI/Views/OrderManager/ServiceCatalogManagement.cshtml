@@ -1,0 +1,171 @@
+﻿@using WebUI.Models
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+@model IEnumerable<ServiceCatalogViewModel>
+
+@{
+    ViewData["Title"] = _localizer["Управление Каталогом Услуг"];
+}
+
+<style>
+    /* Custom Styles for better aesthetics */
+    body {
+        background-color: #f8f9fa; /* Light grey background for the whole page */
+    }
+
+    .title-card-container { /* New style for the title container */
+        background-color: #fff; /* White background for the title */
+        border-radius: 0.75rem; /* Consistent rounded corners */
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1); /* Lighter shadow for the title */
+        padding: 1.5rem 2rem; /* Padding inside the title container */
+        margin-bottom: 2rem; /* Space below the title card */
+        text-align: center; /* Center the title text */
+    }
+
+    .card-table-container {
+        background-color: #fff; /* White background for the table container */
+        border-radius: 0.75rem; /* Consistent rounded corners */
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+        padding: 1.5rem; /* Padding inside the card */
+    }
+
+    .table th,
+    .table td {
+        vertical-align: middle; /* Vertically align content in table cells */
+    }
+
+    .table thead.table-dark th {
+        background-color: #343a40; /* Darker header for consistency */
+        border-color: #454d55;
+    }
+
+    /* Styles for action buttons on hover */
+    .btn-warning:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(255, 193, 7, 0.5);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(220, 53, 69, 0.5);
+    }
+
+    .btn-primary {
+        background-color: #007bff; /* Primary blue for "Add New Service" */
+        border-color: #007bff;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+            transform: translateY(-2px);
+        }
+
+    .alert {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Style for the "Read More" tooltip icon */
+    .text-info {
+        cursor: pointer; /* Indicate clickable behavior */
+        transition: color 0.2s ease;
+    }
+
+        .text-info:hover {
+            color: #0d6efd !important; /* Darker blue on hover */
+        }
+</style>
+
+<div class="container py-5">
+    <div class="title-card-container">
+        @* New container for the page title *@
+        <h1 class="mb-0">@ViewData["Title"]</h1> @* Removed mb-4 from h1 and centered via parent *@
+    </div>
+
+    <div class="mb-4 text-end">
+        <a asp-action="CreateService" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i> @_localizer["Добавить Новую Услугу"]
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info mt-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i> @_localizer["В каталоге услуг пока нет записей. Добавьте первую услугу!"]
+        </div>
+    }
+    else
+    {
+        <div class="card-table-container">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>@_localizer["Название услуги"]</th>
+                            <th>@_localizer["Цена"]</th>
+                            <th>@_localizer["Категория"]</th>
+                            <th>@_localizer["Описание"]</th>
+                            <th>@_localizer["Действия"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.ServiceName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Category)</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Description) && item.Description.Length > 100)
+                                    {
+                                        @(item.Description.Substring(0, 100) + "...")
+                                        <a href="#" class="text-info" data-bs-toggle="tooltip" title="@item.Description">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="EditService" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-1" data-bs-toggle="tooltip" title="@_localizer["Редактировать"]">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="DeleteService" asp-route-id="@item.Id" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="@_localizer["Удалить"]">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}

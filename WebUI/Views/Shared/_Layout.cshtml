@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Калинковичский РМЗ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" href="~/images/favicon.png" type="image/png">
+    <style>
+        /* Optional: Add some styling for your new button/link */
+        .lang-reset-button { /* This style might not be needed if using a single dropdown */
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.75); /* Bootstrap nav-link text-white-50 color */
+            text-decoration: none;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+        }
+
+            .lang-reset-button:hover { /* This style might not be needed if using a single dropdown */
+                color: #fff;
+            }
+
+        /* Adjustments for custom language dropdown */
+        .custom-lang-dropdown .dropdown-toggle::after {
+            vertical-align: middle;
+            margin-left: .255em;
+        }
+
+        .custom-lang-dropdown .dropdown-item {
+            padding: .5rem 1rem;
+        }
+
+        /* --- Стили для скрытия верхней панели Google Translate --- */
+        /* Сброс отступа сверху, который добавляет Google Translate */
+        body {
+            top: 0 !important;
+            margin-top: 0 !important; /* Убедимся, что верхний отступ тоже сброшен */
+        }
+        /* Скрытие самой рамки виджета */
+        .goog-te-banner-frame.skiptranslate {
+            display: none !important;
+            height: 0 !important;
+            visibility: hidden !important;
+            overflow: hidden !important;
+        }
+        /* Убедимся, что нет остаточных элементов, которые могут сдвигать контент */
+        .goog-tooltip, .goog-tooltip:hover {
+            display: none !important;
+        }
+
+        .goog-text-highlight {
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+        /* --- Конец стилей для скрытия верхней панели Google Translate --- */
+
+    </style>
+</head>
+<body>
+    <div id="google_translate_element" style="display: none;"></div>
+
+    <header class="bg-dark text-white py-3">
+        <nav class="navbar navbar-expand-lg navbar-dark container">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" alt="Логотип РМЗ" class="app-logo me-2">
+                    <span class="d-none d-sm-inline fs-5 fw-bold">Калинковичский РМЗ</span>
+                </a>
+
+                <div class="d-flex order-lg-3 align-items-center">
+                    <div class="dropdown me-3 d-none d-lg-block custom-lang-dropdown">
+                        <a class="nav-link text-white dropdown-toggle notranslate" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-language me-1"></i> Язык
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="languageDropdown">
+                            <li><a class="dropdown-item notranslate" href="javascript:void(0)" onclick="changeLanguage('ru'); return false;">Русский</a></li>
+                            <li><a class="dropdown-item notranslate" href="javascript:void(0)" onclick="changeLanguage('en'); return false;">English</a></li>
+                            <li><a class="dropdown-item notranslate" href="javascript:void(0)" onclick="changeLanguage('be'); return false;">Беларускі</a></li>
+                        </ul>
+                    </div>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="dropdown me-2">
+                            <a class="nav-link text-white dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                <span class="fw-bold">@User.Identity.Name</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><h6 class="dropdown-header">Ваш аккаунт</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <span class="dropdown-item-text text-muted small">
+                                        Роль: @string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))
+                                    </span>
+                                </li>
+                                @if (User.IsInRole("Клиент"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Client" asp-action="Index"><i class="fas fa-tachometer-alt me-2"></i> Личный Кабинет</a></li>
+                                }
+                                @if (User.IsInRole("Администратор"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index"><i class="fas fa-user-shield me-2"></i> Панель Администратора</a></li>
+                                }
+                                @if (User.IsInRole("МенеджерЗаказов"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="OrderManager" asp-action="Index"><i class="fas fa-clipboard-check me-2"></i> Управление Заказами</a></li>
+                                }
+                                @if (User.IsInRole("Мастер"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Master" asp-action="Index"><i class="fas fa-tools me-2"></i> Панель Мастера</a></li>
+                                }
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="nav-link text-white me-2 d-none d-lg-block" asp-area="" asp-controller="Account" asp-action="Login">
+                            <i class="fas fa-sign-in-alt me-1"></i> Вход
+                        </a>
+                    }
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                            aria-controls="navbarContent" aria-expanded="false" aria-label="Переключить навигацию">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+
+                <div class="collapse navbar-collapse order-lg-2" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i> Главная
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="History">
+                                <i class="fas fa-history me-1"></i> Наша история
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-boxes me-1"></i> Продукция
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="productsDropdown">
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Catalog"><i class="fas fa-list me-2"></i> Каталог</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-shield-alt me-1"></i> Безопасность
+                            </a>
+                        </li>
+                        @* Existing conditional links for small screens *@
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Клиент"))
+                        {
+                            <li class="nav-item d-lg-none mt-2">
+                                <a class="nav-link" asp-controller="Client" asp-action="Index">
+                                    <i class="fas fa-tachometer-alt me-1"></i> Личный Кабинет
+                                </a>
+                            </li>
+                        }
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Администратор"))
+                        {
+                            <li class="nav-item d-lg-none mt-2">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                                    <i class="fas fa-user-shield me-1"></i> Панель Администратора
+                                </a>
+                            </li>
+                        }
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("МенеджерЗаказов"))
+                        {
+                            <li class="nav-item d-lg-none mt-2">
+                                <a class="nav-link" asp-controller="OrderManager" asp-action="Index">
+                                    <i class="fas fa-clipboard-check me-1"></i> Управление Заказами
+                                </a>
+                            </li>
+                        }
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Мастер"))
+                        {
+                            <li class="nav-item d-lg-none mt-2">
+                                <a class="nav-link" asp-controller="Master" asp-action="Index">
+                                    <i class="fas fa-tools me-1"></i> Панель Мастера
+                                </a>
+                            </li>
+                        }
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item d-lg-none mt-2">
+                                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i> Вход в аккаунт
+                                </a>
+                            </li>
+                        }
+                        <li class="nav-item d-lg-none mt-2 custom-lang-dropdown">
+                            <a class="nav-link dropdown-toggle notranslate" href="#" id="languageDropdownMobile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-language me-1"></i> Язык
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="languageDropdownMobile">
+                                <li><a class="dropdown-item notranslate" href="javascript:void(0)" onclick="changeLanguage('ru'); return false;">Русский</a></li>
+                                <li><a class="dropdown-item notranslate" href="javascript:void(0)" onclick="changeLanguage('en'); return false;">English</a></li>
+                                <li><a class="dropdown-item notranslate" href="javascript:void(0)" onclick="changeLanguage('be'); return false;">Беларускі</a></li>
+                            </ul>
+                        </li>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item d-lg-none mt-2">
+                                <form asp-controller="Account" asp-action="Logout" method="post" id="logoutFormSmall" class="d-inline">
+                                    <button type="submit" class="nav-link btn btn-link text-start text-white">
+                                        <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="main-content">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0 text-center text-lg-start">
+                    <h5 class="text-uppercase mb-4 fw-bold">Калинковичский РМЗ</h5>
+                    <p>Производство и ремонт оборудования высшего качества с @(DateTime.Now.Year - 1978) годов.</p>
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-3 fs-4"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3 fs-4"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white me-3 fs-4"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4 mb-md-0 text-center text-md-start">
+                    <h5 class="text-uppercase mb-4 fw-bold">Навигация</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a asp-area="" asp-controller="Home" asp-action="Index" class="text-white-50 text-decoration-none">Главная</a></li>
+                        <li class="mb-2"><a asp-area="" asp-controller="Home" asp-action="History" class="text-white-50 text-decoration-none">О компании</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Catalog" class="text-white-50 text-decoration-none">Продукция</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0 text-center text-md-start">
+                    <h5 class="text-uppercase mb-4 fw-bold">Контакты</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2 text-primary"></i> г. Калинковичи, ул. Заводская, 15</li>
+                        <li class="mb-2"><i class="fas fa-phone me-2 text-primary"></i> +375 (2345) 5-12-34</li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2 text-primary"></i> info@rmz-kalinkovichi.by</li>
+                        <li><i class="fas fa-clock me-2 text-primary"></i> Пн-Пт: 8:00 - 17:00</li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 text-center text-md-start">
+                    <h5 class="text-uppercase mb-4 fw-bold">Подписаться</h5>
+                    <p>Будьте в курсе наших новостей и акций</p>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Ваш email" aria-label="Ваш email">
+                        <button class="btn btn-primary" type="button"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 border-light opacity-25">
+
+            <div class="text-center text-white-50 small">
+                &copy; @DateTime.Now.Year - Калинковичский РМЗ. Все права защищены.
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-white-50 ms-2 text-decoration-none">Политика конфиденциальности</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script type="text/javascript">
+        // Глобальная переменная для хранения текущего языка Google Translate
+        let currentGoogleTranslateLang = 'ru'; // Инициализируем с языком по умолчанию
+
+        // Функция, вызываемая после загрузки виджета Google Translate
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ru', // Исходный язык страницы
+                includedLanguages: 'en,be', // Языки, на которые можно перевести
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false // Важно, чтобы виджет не отображался
+            }, 'google_translate_element');
+
+            // Добавляем обработчик события 'change' к скрытому элементу select Google Translate
+            // Делаем это с небольшой задержкой, чтобы убедиться, что элемент уже создан
+            setTimeout(() => {
+                const gtSelect = document.querySelector('#google_translate_element select');
+                if (gtSelect) {
+                    gtSelect.addEventListener('change', function() {
+                        const selectedValue = this.value; // Например, "/ru/en"
+                        const targetLang = selectedValue.split('/')[2]; // Извлекаем "en"
+                        currentGoogleTranslateLang = targetLang;
+                        document.body.setAttribute('data-current-lang', targetLang); // Устанавливаем data-атрибут на body
+                        console.log('Google Translate switched to:', currentGoogleTranslateLang);
+                        // Опционально: можно вызвать другое событие или функцию для уведомления других частей страницы
+                        // Например: window.dispatchEvent(new CustomEvent('langChanged', { detail: targetLang }));
+                    });
+
+                    // Устанавливаем начальное значение data-атрибута и глобальной переменной
+                    // при загрузке страницы, если Google Translate уже перевел страницу
+                    const initialGTValue = gtSelect.value;
+                    if (initialGTValue) {
+                        const initialTargetLang = initialGTValue.split('/')[2];
+                        currentGoogleTranslateLang = initialTargetLang;
+                        document.body.setAttribute('data-current-lang', initialTargetLang);
+                        console.log('Initial Google Translate language:', currentGoogleTranslateLang);
+                    }
+                }
+            }, 500); // Небольшая задержка, чтобы виджет успел создать элементы
+        }
+
+        // Функция для программного переключения языка через скрытый виджет Google Translate
+        function changeLanguage(langCode) {
+            const selectElement = document.querySelector('#google_translate_element select');
+
+            if (selectElement) {
+                // Если выбран русский, нужно сбросить перевод
+                if (langCode === 'ru') {
+                    // Удаляем куку googtrans, чтобы виджет вернулся к оригинальному языку
+                    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    // Также очищаем потенциальные куки перевода домена
+                    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname + ";";
+                    // Если у вас есть субдомены, может понадобиться также для них
+                    // document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.yourdomain.com;";
+
+                    window.location.reload(); // Перезагружаем страницу, чтобы Google Translate сбросил состояние
+                    return; // Выходим из функции, так как мы перезагружаем страницу
+                }
+
+                // Для других языков, кроме русского, используем обычное переключение
+                const optionToSelect = Array.from(selectElement.options).find(option => option.value.endsWith('/' + langCode));
+
+                if (optionToSelect) {
+                    selectElement.value = optionToSelect.value;
+                    // Создаем и вызываем событие 'change', чтобы виджет Google Translate обновился
+                    const event = new Event('change');
+                    selectElement.dispatchEvent(event);
+
+                    // Обновляем глобальную переменную и data-атрибут сразу после "клика"
+                    currentGoogleTranslateLang = langCode;
+                    document.body.setAttribute('data-current-lang', langCode);
+                    // Устанавливаем куку для сохранения состояния перевода
+                    document.cookie = "googtrans=/ru/" + langCode + "; path=/;";
+
+                } else {
+                    console.error("Опция языка '" + langCode + "' не найдена в выпадающем списке Google Translate.");
+                    // Фоллбэк: если опция не найдена, пробуем перезагрузить страницу с кукой
+                    document.cookie = "googtrans=/ru/" + langCode + "; path=/";
+                    window.location.reload();
+                }
+            } else {
+                console.error("Элемент выбора Google Translate не найден. Виджет, возможно, не инициализирован.");
+                // В крайнем случае, если виджет не загрузился, просто перезагружаем страницу с кукой
+                document.cookie = "googtrans=/ru/" + langCode + "; path=/";
+                window.location.reload();
+            }
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

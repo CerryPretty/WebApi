@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Заказ оформлен!";
+}
+
+<div class="container my-5 text-center">
+    <div class="card shadow-lg p-5 border-0 rounded-3">
+        <div class="card-body">
+            <h1 class="display-4 text-success mb-4">
+                <i class="bi bi-check-circle-fill me-3"></i>Заказ успешно оформлен!
+            </h1>
+            <p class="lead mb-4">Благодарим вас за размещение заказа. Мы свяжемся с вами в ближайшее время для уточнения деталей.</p>
+
+            <hr class="my-4">
+
+            <p class="mb-4">Вы можете отслеживать статус вашего заказа в личном кабинете.</p>
+
+            <div class="mt-4">
+                <a asp-controller="Client" asp-action="MyProfile" class="btn btn-primary btn-lg me-3">
+                    <i class="bi bi-person-fill me-2"></i>Мой профиль
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-house-fill me-2"></i>На главную
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        if (performance.navigation.type === 2) { 
+            window.location.href = '@Url.Action("MyProfile", "Client")';
+        }
+    </script>
+}

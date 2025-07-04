@@ -1,0 +1,82 @@
+﻿@model WebUI.Models.SecuritySettingsViewModel
+@{
+    ViewData["Title"] = "Настройки Безопасности";
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>Здесь вы можете изменить свой логин и пароль.</p>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Изменить Логин</h5>
+                    <hr />
+                    <form asp-action="ChangeUsername" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group mb-3">
+                            <label for="CurrentUserName" class="form-label">Текущий логин:</label>
+                            <input type="text" class="form-control" id="CurrentUserName" value="@Model.CurrentUserName" readonly />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="ChangeUsername.NewUserName" class="form-label"></label>
+                            <input asp-for="ChangeUsername.NewUserName" class="form-control" />
+                            <span asp-validation-for="ChangeUsername.NewUserName" class="text-danger d-block"></span>
+                        </div>
+                        @Html.AntiForgeryToken() @* <-- ДОБАВЛЕНО: Токен защиты от подделки запросов *@
+                        <button type="submit" class="btn btn-primary mt-3">Сохранить логин</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Изменить Пароль</h5>
+                    <hr />
+                    <form asp-action="ChangePassword" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group mb-3">
+                            <label asp-for="ChangePassword.OldPassword" class="form-label"></label>
+                            <input asp-for="ChangePassword.OldPassword" class="form-control" />
+                            <span asp-validation-for="ChangePassword.OldPassword" class="text-danger d-block"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="ChangePassword.NewPassword" class="form-label"></label>
+                            <input asp-for="ChangePassword.NewPassword" class="form-control" />
+                            <span asp-validation-for="ChangePassword.NewPassword" class="text-danger d-block"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="ChangePassword.ConfirmNewPassword" class="form-label"></label>
+                            <input asp-for="ChangePassword.ConfirmNewPassword" class="form-control" />
+                            <span asp-validation-for="ChangePassword.ConfirmNewPassword" class="text-danger d-block"></span>
+                        </div>
+                        @Html.AntiForgeryToken() @* <-- ДОБАВЛЕНО: Токен защиты от подделки запросов *@
+                        <button type="submit" class="btn btn-primary mt-3">Сменить пароль</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,415 @@
+﻿@using WebApi.Models
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+@model IEnumerable<Order>
+
+@{
+    ViewData["Title"] = _localizer["Мои заказы"];
+}
+
+<style>
+    /* Custom styles for Bootstrap Tabs */
+    .nav-tabs {
+        border-bottom: 2px solid #e0e0e0; /* Subtle border at the bottom of the tabs */
+        margin-bottom: 2rem; /* Spacing below the tabs */
+    }
+
+        .nav-tabs .nav-link {
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-top-left-radius: 0.5rem; /* Rounded corners for tabs */
+            border-top-right-radius: 0.5rem;
+            padding: 0.75rem 1.5rem; /* Padding inside tabs */
+            color: #6c757d; /* Default text color */
+            font-weight: 500;
+            transition: all 0.3s ease; /* Smooth transitions for hover/active states */
+            background-color: #f8f9fa; /* Light background for inactive tabs */
+            margin-right: 0.25rem; /* Small space between tabs */
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05); /* Subtle shadow on top */
+        }
+
+            .nav-tabs .nav-link:hover {
+                border-color: #e9ecef #e9ecef #dee2e6; /* Border color on hover */
+                background-color: #e9ecef; /* Slightly darker background on hover */
+                color: #495057; /* Darker text on hover */
+            }
+
+            .nav-tabs .nav-link.active {
+                color: #007bff; /* Primary color for active tab text */
+                background-color: #ffffff; /* White background for active tab */
+                border-color: #007bff #007bff #ffffff; /* Blue border on top/sides, white at bottom to blend with content */
+                font-weight: 600;
+                box-shadow: 0 -4px 10px rgba(0, 123, 255, 0.1); /* Stronger shadow for active tab */
+            }
+
+    /* Style for empty states within tabs */
+    .empty-state-small {
+        text-align: center;
+        padding: 3rem;
+        background-color: #f8f9fa;
+        border-radius: 0.75rem;
+        border: 1px dashed #e0e0e0;
+        color: #6c757d;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="page-header-container animate__animated animate__fadeInDown">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="page-header">
+                    <h1 class="display-3 fw-bold mb-3 text-gradient">@_localizer["Мои заказы"]</h1>
+                    <p class="lead fs-4 text-muted">@_localizer["Здесь вы можете просмотреть статус и детали ваших заказов"]</p>
+                    <div class="header-divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-icon"><i class="bi bi-cart-check"></i></div>
+                        <div class="divider-line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state animate__animated animate__fadeInUp">
+            <div class="empty-state-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h3 class="empty-state-title">@_localizer["У вас пока нет заказов"]</h3>
+            <p class="empty-state-text">@_localizer["Для оформления нового заказа перейдите в"] <a asp-controller="Home" asp-action="Catalog" class="text-gradient">@_localizer["Каталог Услуг"]</a></p>
+            <div class="empty-state-action">
+                <a asp-controller="Home" asp-action="Catalog" class="btn btn-primary btn-lg px-4">
+                    <i class="bi bi-arrow-right me-2"></i>@_localizer["Перейти в каталог"]
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <ul class="nav nav-tabs justify-content-center mb-4" id="orderTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="current-orders-tab" data-bs-toggle="tab" data-bs-target="#current-orders" type="button" role="tab" aria-controls="current-orders" aria-selected="true">
+                    @_localizer["Текущие заказы"]
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-orders-tab" data-bs-toggle="tab" data-bs-target="#history-orders" type="button" role="tab" aria-controls="history-orders" aria-selected="false">
+                    @_localizer["История заказов и отказов"]
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="orderTabsContent">
+            <div class="tab-pane fade show active" id="current-orders" role="tabpanel" aria-labelledby="current-orders-tab">
+                <div class="row g-4">
+                    @foreach (var order in Model.OrderByDescending(o => o.CreatedDate).Where(o => o.StatusId != 4 && o.StatusId != 5)) @* Исключаем оплаченные (4) и отмененные (5) заказы *@
+                    {
+                        <div class="col-12 animate__animated animate__fadeInUp" style="animation-delay: @(50 * Model.ToList().IndexOf(order))ms">
+                            <div class="order-card card border-0 shadow-sm overflow-hidden">
+                                <div class="card-header position-relative">
+                                    <div class="order-header-bg"></div>
+                                    <div class="d-flex align-items-center position-relative z-index-1">
+                                        <div class="order-icon me-3">
+                                            <i class="bi bi-receipt"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-0 fw-bold">@_localizer["Заказ"] #@order.OrderNumber</h5>
+                                            <small class="text-muted">@order.CreatedDate.ToString("dd.MM.yyyy HH:mm")</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge status-badge rounded-pill" data-status="@order.Status?.StatusName">
+                                        @order.Status?.StatusName
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="order-detail-item">
+                                                <span class="detail-label">@_localizer["Клиент"]</span>
+                                                <span class="detail-value">@order.ClientDisplayName</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="order-detail-item">
+                                                <span class="detail-label">@_localizer["Дата окончания"]</span>
+                                                <span class="detail-value">@(order.CompletionDate?.ToString("dd.MM.yyyy HH:mm") ?? _localizer["Не Завершено"])</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="order-detail-item">
+                                        <span class="detail-label">@_localizer["Описание проблемы"]</span>
+                                        <span class="detail-value">@(string.IsNullOrEmpty(order.ProblemDescription) ? _localizer["Не указано"] : order.ProblemDescription)</span>
+                                    </div>
+
+                                    @if (order.OrderServices != null && order.OrderServices.Any())
+                                    {
+                                        <div class="services-section mt-4">
+                                            <h6 class="section-title">
+                                                <i class="bi bi-list-check me-2"></i>
+                                                @_localizer["Услуги в заказе"]
+                                                <span class="badge bg-primary-soft rounded-pill ms-2">@order.OrderServices.Count</span>
+                                            </h6>
+                                            <div class="services-list">
+                                                @foreach (var os in order.OrderServices)
+                                                {
+                                                    <div class="service-item">
+                                                        <div class="service-info">
+                                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                            <span>@os.Service?.ServiceName</span>
+                                                        </div>
+                                                        <div class="service-price">
+                                                            <span class="quantity">@os.Quantity @_localizer["шт."]</span>
+                                                            <span class="price">@os.UnitPrice.ToString("C", new System.Globalization.CultureInfo("be-BY"))</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="order-total">
+                                            <span class="total-label">@_localizer["Итого"]:</span>
+                                            <span class="total-value">@order.Cost?.ToString("C", new System.Globalization.CultureInfo("be-BY")) </span>
+                                        </div>
+                                        <div class="order-actions d-flex align-items-center">
+                                            @if (order.StatusId == 3) @* Если статус "Выполнен" / "Ожидает оплаты" *@
+                                            {
+                                                <a asp-controller="Client" asp-action="PayOrder" asp-route-orderId="@order.Id" class="btn btn-sm btn-success me-2">
+                                                    <i class="bi bi-credit-card me-1"></i> @_localizer["Оплатить"]
+                                                </a>
+                                            }
+                                            @if (order.StatusId == 1 || order.StatusId == 2) @* Если статус "Новый" или "В работе" *@
+                                            {
+                                                <button type="button" class="btn btn-sm btn-danger me-2 cancel-order-btn" data-order-id="@order.Id" data-order-number="@order.OrderNumber">
+                                                    <i class="bi bi-x-circle me-1"></i> @_localizer["Отказаться"]
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.Any(o => o.StatusId != 4 && o.StatusId != 5))
+                    {
+                        <div class="empty-state-small mt-4">
+                            <h4 class="text-muted">@_localizer["Нет текущих заказов."]</h4>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="history-orders" role="tabpanel" aria-labelledby="history-orders-tab">
+                <div class="row g-4">
+                    @foreach (var order in Model.OrderByDescending(o => o.CreatedDate).Where(o => o.StatusId == 4 || o.StatusId == 5)) @* Включаем только оплаченные (4) и отмененные (5) заказы *@
+                    {
+                        <div class="col-12 animate__animated animate__fadeInUp" style="animation-delay: @(50 * Model.ToList().IndexOf(order))ms">
+                            <div class="order-card card border-0 shadow-sm overflow-hidden">
+                                <div class="card-header position-relative">
+                                    <div class="order-header-bg"></div>
+                                    <div class="d-flex align-items-center position-relative z-index-1">
+                                        <div class="order-icon me-3">
+                                            <i class="bi bi-clock-history"></i> @* Измененная иконка для истории *@
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-0 fw-bold">@_localizer["Заказ"] #@order.OrderNumber</h5>
+                                            <small class="text-muted">@order.CreatedDate.ToString("dd.MM.yyyy HH:mm")</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge status-badge rounded-pill" data-status="@order.Status?.StatusName">
+                                        @order.Status?.StatusName
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="order-detail-item">
+                                                <span class="detail-label">@_localizer["Клиент"]</span>
+                                                <span class="detail-value">@order.ClientDisplayName</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="order-detail-item">
+                                                <span class="detail-label">@_localizer["Дата окончания"]</span>
+                                                <span class="detail-value">@(order.CompletionDate?.ToString("dd.MM.yyyy HH:mm") ?? _localizer["Не Завершено"])</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="order-detail-item">
+                                        <span class="detail-label">@_localizer["Описание проблемы"]</span>
+                                        <span class="detail-value">@(string.IsNullOrEmpty(order.ProblemDescription) ? _localizer["Не указано"] : order.ProblemDescription)</span>
+                                    </div>
+
+                                    @if (order.OrderServices != null && order.OrderServices.Any())
+                                    {
+                                        <div class="services-section mt-4">
+                                            <h6 class="section-title">
+                                                <i class="bi bi-list-check me-2"></i>
+                                                @_localizer["Услуги в заказе"]
+                                                <span class="badge bg-primary-soft rounded-pill ms-2">@order.OrderServices.Count</span>
+                                            </h6>
+                                            <div class="services-list">
+                                                @foreach (var os in order.OrderServices)
+                                                {
+                                                    <div class="service-item">
+                                                        <div class="service-info">
+                                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                            <span>@os.Service?.ServiceName</span>
+                                                        </div>
+                                                        <div class="service-price">
+                                                            <span class="quantity">@os.Quantity @_localizer["шт."]</span>
+                                                            <span class="price">@os.UnitPrice.ToString("C", new System.Globalization.CultureInfo("be-BY"))</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="order-total">
+                                            <span class="total-label">@_localizer["Итого"]:</span>
+                                            <span class="total-value">@order.Cost?.ToString("C", new System.Globalization.CultureInfo("be-BY")) </span>
+                                        </div>
+                                        <div class="order-actions d-flex align-items-center">
+                                            @* Кнопки "Оплатить" и "Отказаться" не нужны для истории заказов *@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.Any(o => o.StatusId == 4 || o.StatusId == 5))
+                    {
+                        <div class="empty-state-small mt-4">
+                            <h4 class="text-muted">@_localizer["Нет завершенных или отмененных заказов."]</h4>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="confirmCancelOrderModal" tabindex="-1" aria-labelledby="confirmCancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmCancelOrderModalLabel">@_localizer["Подтверждение Отмены Заказа"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @_localizer["Вы уверены, что хотите отменить заказ"] <strong id="cancelOrderNumberDisplay"></strong>? @_localizer["Это действие необратимо."].
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localizer["Отмена"]</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelOrderBtn">@_localizer["Отменить Заказ"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalLabel">@_localizer["Сообщение"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="messageModalBody">
+                {{-- Сообщение будет вставлено сюда JS --}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="~/css/orders.css" asp-append-version="true" />
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        let orderIdToCancel = null;
+        let orderNumberToCancel = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmCancelOrderModalElement = document.getElementById('confirmCancelOrderModal');
+            const messageModalElement = document.getElementById('messageModal');
+
+            // Инициализируем модальные окна с backdrop: false, чтобы фон не затемнялся
+            const confirmCancelModal = new bootstrap.Modal(confirmCancelOrderModalElement, { backdrop: false });
+            const messageModal = new bootstrap.Modal(messageModalElement, { backdrop: false });
+
+            // Handler for the confirm cancel button in the modal
+            document.getElementById('confirmCancelOrderBtn').addEventListener('click', function() {
+                confirmCancelModal.hide(); // Hide the confirmation modal
+
+                fetch(`/Client/CancelOrder`, { // <--- Путь к вашему экшену
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value,
+                        'Content-Type': 'application/json' // Важно: сообщаем серверу, что отправляем JSON
+                    },
+                    // Отправляем orderId в теле запроса как JSON
+                    body: JSON.stringify(orderIdToCancel)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        // Если ответ не успешный (например, 400 Bad Request, 500 Internal Server Error)
+                        // Пытаемся прочитать сообщение об ошибке из JSON ответа
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || '@_localizer["Ошибка сети или сервера при отмене заказа."]');
+                        }).catch(() => {
+                            // Если не удалось прочитать JSON, возвращаем общее сообщение
+                            throw new Error('@_localizer["Ошибка сети или сервера при отмене заказа."]');
+                        });
+                    }
+                    return response.json(); // Парсим JSON ответ от сервера
+                })
+                .then(data => {
+                    // Обрабатываем успешный или неуспешный ответ от контроллера
+                    document.getElementById('messageModalLabel').innerText = data.success ? '@_localizer["Успех"]' : '@_localizer["Ошибка"]';
+                    document.getElementById('messageModalBody').innerText = data.message;
+                    messageModal.show(); // Показываем модальное окно с результатом
+                    if (data.success) {
+                        // Перезагружаем страницу только после успешной отмены, чтобы обновить список заказов
+                        document.getElementById('messageModal').addEventListener('hidden.bs.modal', function () {
+                            location.reload();
+                        }, { once: true });
+                    }
+                })
+                .catch(error => {
+                    // Обработка любых ошибок, возникших в процессе fetch (например, проблемы с сетью)
+                    console.error('Ошибка при отмене заказа:', error);
+                    document.getElementById('messageModalLabel').innerText = '@_localizer["Ошибка"]';
+                    document.getElementById('messageModalBody').innerText = error.message || '@_localizer["Произошла ошибка при попытке отменить заказ."].';
+                    messageModal.show();
+                });
+            });
+
+            // JavaScript для кнопок "Отказаться" (отображение модального окна подтверждения)
+            document.querySelectorAll('.cancel-order-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    orderIdToCancel = parseInt(this.dataset.orderId); // Убедимся, что это число
+                    orderNumberToCancel = this.dataset.orderNumber;
+
+                    document.getElementById('cancelOrderNumberDisplay').innerText = orderNumberToCancel;
+                    confirmCancelModal.show(); // Показываем модальное окно подтверждения
+                });
+            });
+        });
+    </script>
+}

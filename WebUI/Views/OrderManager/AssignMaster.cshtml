@@ -1,0 +1,127 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+@model WebUI.Models.AssignMasterViewModel
+
+@{
+    ViewData["Title"] = _localizer["Назначить Мастера"];
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>@_localizer["Выберите заказ и назначьте ему мастера из списка. Также вы можете изменить стоимость заказа и добавить комментарии."]</p> @* Updated description *@
+
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger mt-3" role="alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning mt-3" role="alert">
+            @TempData["WarningMessage"]
+        </div>
+    }
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">@_localizer["Форма назначения мастера"]</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="AssignMaster" method="post">
+                @* Отображение общих ошибок валидации *@
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="SelectedOrderId" class="form-label">@_localizer["Выберите Заказ"] <span class="text-danger">*</span></label>
+                    <select asp-for="SelectedOrderId" asp-items="Model.Orders" class="form-select">
+                        <option value="">@_localizer["-- Выберите заказ --"]</option>
+                    </select>
+                    <span asp-validation-for="SelectedOrderId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Cost" class="form-label">@_localizer["Стоимость Заказа"] <span class="text-danger">*</span></label>
+                    <input asp-for="Cost" type="number" step="0.01" min="0.01" class="form-control" />
+                    <span asp-validation-for="Cost" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    @* New textarea for Manager Comments *@
+                    <label asp-for="ManagerComments" class="form-label">@_localizer["Комментарии Менеджера"]</label>
+                    <textarea asp-for="ManagerComments" class="form-control" rows="3" placeholder="@_localizer["Добавьте комментарии, касающиеся назначения мастера или стоимости..."]"></textarea>
+                    <span asp-validation-for="ManagerComments" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="SelectedMasterId" class="form-label">@_localizer["Выберите Мастера"] <span class="text-danger">*</span></label>
+                    <select asp-for="SelectedMasterId" asp-items="Model.Masters" class="form-select">
+                        <option value="">@_localizer["-- Выберите мастера --"]</option>
+                    </select>
+                    <span asp-validation-for="SelectedMasterId" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-check-circle me-1"></i> @_localizer["Назначить Мастера и Обновить Заказ"] @* Updated button text for clarity *@
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times-circle me-1"></i> @_localizer["Отмена"]
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" /> @* Required for client-side validation *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script>
+        // JavaScript to dynamically update the Cost and ManagerComments fields when an order is selected
+        document.addEventListener('DOMContentLoaded', function () {
+            const orderSelect = document.getElementById('SelectedOrderId');
+            const costInput = document.getElementById('Cost');
+            const managerCommentsInput = document.getElementById('ManagerComments'); // Get the new comments input
+
+            orderSelect.addEventListener('change', async function () {
+                const selectedOrderId = this.value;
+                if (selectedOrderId) {
+                    try {
+                        // Make an AJAX call to fetch the current order details including cost and comments
+                        const response = await fetch(`/OrderManager/GetOrderDetails?orderId=${selectedOrderId}`); // New endpoint
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.cost !== undefined) {
+                                costInput.value = data.cost.toFixed(2);
+                            } else {
+                                costInput.value = '';
+                            }
+                            // Set the ManagerComments field
+                            managerCommentsInput.value = data.managerComments || ''; // Use || '' to handle null/undefined
+                        } else {
+                            console.error('Failed to fetch order details:', response.statusText);
+                            costInput.value = '';
+                            managerCommentsInput.value = '';
+                        }
+                    } catch (error) {
+                        console.error('Error fetching order details:', error);
+                        costInput.value = '';
+                        managerCommentsInput.value = '';
+                    }
+                } else {
+                    costInput.value = '';
+                    managerCommentsInput.value = '';
+                }
+            });
+        });
+    </script>
+}

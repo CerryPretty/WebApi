@@ -1,0 +1,143 @@
+﻿@using WebUI.Models
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+@model ServiceCatalogViewModel
+
+@{
+    ViewData["Title"] = _localizer["Редактировать Услугу"];
+}
+
+<style>
+    /* Custom Styles for better aesthetics */
+    body {
+        background-color: #f8f9fa; /* Light grey background for the whole page */
+    }
+
+    .card-header-custom {
+        background-color: #ffc107; /* Warning yellow for header */
+        color: white;
+        font-size: 1.25rem;
+        font-weight: bold;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .card {
+        border-radius: 0.75rem; /* Slightly more rounded corners */
+        overflow: hidden; /* Ensures header corners match card */
+    }
+
+    .form-label {
+        font-weight: 500; /* Make labels a bit bolder */
+        color: #343a40; /* Darker text for labels */
+    }
+
+    .btn-primary {
+        background-color: #007bff; /* Primary blue for "Save" */
+        border-color: #007bff;
+        transition: all 0.3s ease; /* Smooth transition on hover */
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+
+    .btn-secondary {
+        background-color: #6c757d; /* Standard grey for "Back" */
+        border-color: #6c757d;
+        transition: all 0.3s ease;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            transform: translateY(-2px);
+        }
+
+    .alert {
+        margin-top: 1rem; /* Space above alerts */
+        margin-bottom: 1rem; /* Space below alerts */
+    }
+</style>
+
+<div class="container py-5">
+    <h1 class="mb-4 text-center">@ViewData["Title"]</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card shadow-lg border-0">
+                <div class="card-header card-header-custom">
+                    <i class="fas fa-edit me-2"></i> @_localizer["Редактирование услуги"] - @Html.DisplayFor(model => model.ServiceName)
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form asp-action="EditService" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+                        @* Hidden field for Id, so it's sent back on post *@
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="ServiceName" class="form-label"></label>
+                                <input asp-for="ServiceName" class="form-control" />
+                                <span asp-validation-for="ServiceName" class="text-danger small mt-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Price" class="form-label"></label>
+                                <input asp-for="Price" class="form-control" />
+                                <span asp-validation-for="Price" class="text-danger small mt-1"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Category" class="form-label"></label>
+                                <input asp-for="Category" class="form-control" />
+                                <span asp-validation-for="Category" class="text-danger small mt-1"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label"></label>
+                                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small mt-1"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="ImageUrl" class="form-label"></label>
+                                <input asp-for="ImageUrl" class="form-control" />
+                                <span asp-validation-for="ImageUrl" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <a asp-action="ServiceCatalogManagement" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i> @_localizer["Вернуться к списку"]
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> @_localizer["Сохранить Изменения"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,65 @@
+﻿@model WebUI.Models.CreateUserViewModel
+
+@{
+    ViewData["Title"] = "Создать нового пользователя";
+    // Получаем список ролей из ViewData
+    var availableRoles = ViewData["AvailableRoles"] as IEnumerable<SelectListItem>;
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="CreateUser" method="post">
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="UserName" class="form-label"></label>
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SelectedRoles" class="form-label"></label>
+                    @* Теперь asp-items использует ViewData напрямую *@
+                    <select asp-for="SelectedRoles" asp-items="@availableRoles" class="form-control" multiple>
+                        <option value="">Выберите роли</option>
+                    </select>
+                    <span asp-validation-for="SelectedRoles" class="text-danger"></span>
+                    <small class="form-text text-muted">Удерживайте Ctrl (или Command на Mac) для выбора нескольких ролей.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-plus-circle me-2"></i> Создать пользователя
+                </button>
+                <a asp-action="ManageUsers" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i> Отмена
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

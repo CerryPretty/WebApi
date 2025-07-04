@@ -1,0 +1,172 @@
+﻿@model object // We'll handle which model is active via JS, or pass a base model
+
+@{
+    // This tells ASP.NET Core that this view should use your main layout
+    // Replace "_Layout" with the actual name of your layout file, e.g., "~/Views/Shared/_Layout.cshtml"
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+}
+
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2 class="auth-title" id="authTitle">Вход</h2>
+            <p class="auth-subtitle" id="authSubtitle">
+                Добро пожаловать обратно! Пожалуйста, войдите в свой аккаунт.
+            </p>
+
+            <form id="loginForm" class="auth-form auth-form-visible" asp-action="Login" asp-controller="Account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger auth-message error auth-form-visible" style="display: none;"></div>
+
+                <div class="form-group">
+                    <label for="loginEmail" class="form-label">
+                        <i class="fas fa-envelope"></i> Email адрес
+                    </label>
+                    <input type="email" class="form-control" id="loginEmail" name="Email" placeholder="Ваш Email" required>
+                    <span class="text-danger" data-valmsg-for="Email"></span> @* For client-side validation *@
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword" class="form-label">
+                        <i class="fas fa-lock"></i> Пароль
+                    </label>
+                    <input type="password" class="form-control" id="loginPassword" name="Password" placeholder="Ваш пароль" required>
+                    <span class="text-danger" data-valmsg-for="Password"></span>
+                </div>
+                <div class="form-group form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="loginRememberMe" name="RememberMe" value="true">
+                    <label class="form-check-label" for="loginRememberMe">Запомнить меня</label>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+                <div class="auth-form-footer">
+                    Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a>
+                </div>
+            </form>
+
+            <form id="registerForm" class="auth-form auth-form-hidden" asp-action="Register" asp-controller="Account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger auth-message error auth-form-visible" style="display: none;"></div>
+
+                <div class="form-group">
+                    <label for="registerName" class="form-label">
+                        <i class="fas fa-user"></i> Имя пользователя
+                    </label>
+                    <input type="text" class="form-control" id="registerName" name="Name" placeholder="Ваше имя" required>
+                    <span class="text-danger" data-valmsg-for="Name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail" class="form-label">
+                        <i class="fas fa-envelope"></i> Email адрес
+                    </label>
+                    <input type="email" class="form-control" id="registerEmail" name="Email" placeholder="Ваш Email" required>
+                    <span class="text-danger" data-valmsg-for="Email"></span>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword" class="form-label">
+                        <i class="fas fa-lock"></i> Пароль
+                    </label>
+                    <input type="password" class="form-control" id="registerPassword" name="Password" placeholder="Придумайте пароль" required>
+                    <span class="text-danger" data-valmsg-for="Password"></span>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">
+                        <i class="fas fa-lock-open"></i> Повторите пароль
+                    </label>
+                    <input type="password" class="form-control" id="confirmPassword" name="PasswordConfirm" placeholder="Повторите пароль" required>
+                    <span class="text-danger" data-valmsg-for="PasswordConfirm"></span>
+                </div>
+                <button type="submit" class="btn btn-accent">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+                <div class="auth-form-footer">
+                    Уже есть аккаунт? <a href="#" id="showLogin">Войти</a>
+                </div>
+            </form>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="auth-message success auth-form-visible mt-3">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="auth-message error auth-form-visible mt-3">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // JavaScript for form switching
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegisterLink = document.getElementById('showRegister');
+        const showLoginLink = document.getElementById('showLogin');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+
+        // Function to show a specific form and hide the other
+        function showForm(formToShow, newTitle, newSubtitle) {
+            const forms = [loginForm, registerForm];
+            forms.forEach(form => {
+                if (form === formToShow) {
+                    form.classList.remove('auth-form-hidden');
+                    form.classList.add('auth-form-visible');
+                    // Ensure the title and subtitle are set immediately for the visible form
+                    authTitle.textContent = newTitle;
+                    authSubtitle.textContent = newSubtitle;
+                } else {
+                    form.classList.remove('auth-form-visible');
+                    form.classList.add('auth-form-hidden');
+                }
+            });
+        }
+
+        // Event listeners for switching links
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showForm(registerForm, 'Регистрация', 'Присоединяйтесь к нам! Создайте свой новый аккаунт.');
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showForm(loginForm, 'Вход', 'Добро пожаловать обратно! Пожалуйста, войдите в свой аккаунт.');
+        });
+
+        // Handle initial display based on Model state or URL (if you want to open directly to register)
+        // For example, if you pass a parameter from the controller to show register form initially
+        // if (window.location.hash === '#register') {
+        //     showForm(registerForm, 'Регистрация', 'Присоединяйтесь к нам! Создайте свой новый аккаунт.');
+        // } else {
+        //     showForm(loginForm, 'Вход', 'Добро пожаловать обратно! Пожалуйста, войдите в свой аккаунт.');
+        // }
+
+        // Optionally, handle server-side validation errors to show the correct form
+        // If a form submission fails on the server, you might want to show that form again
+        // This is a simple example, you might need to adapt it based on your exact ViewModel and validation
+        document.addEventListener('DOMContentLoaded', () => {
+            const validationSummary = document.querySelector('.auth-form-visible .text-danger[data-valsummary="true"]');
+            if (validationSummary && validationSummary.innerHTML.trim() !== '') {
+                // If there are validation errors, check which form was submitted or if there are errors for a specific form
+                // This logic might need to be more sophisticated depending on how you pass validation errors
+                const loginFormErrors = loginForm.querySelector('.text-danger[data-valsummary="true"]');
+                const registerFormErrors = registerForm.querySelector('.text-danger[data-valsummary="true"]');
+
+                if (loginFormErrors && loginFormErrors.innerHTML.trim() !== '') {
+                     showForm(loginForm, 'Вход', 'Добро пожаловать обратно! Пожалуйста, войдите в свой аккаунт.');
+                } else if (registerFormErrors && registerFormErrors.innerHTML.trim() !== '') {
+                     showForm(registerForm, 'Регистрация', 'Присоединяйтесь к нам! Создайте свой новый аккаунт.');
+                }
+            } else if ("@ViewBag.ShowRegister" === "True") { // Example of passing a flag from controller
+                showForm(registerForm, 'Регистрация', 'Присоединяйтесь к нам! Создайте свой новый аккаунт.');
+            }
+        });
+
+    </script>
+}

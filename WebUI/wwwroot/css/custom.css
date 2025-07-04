@@ -1,0 +1,211 @@
+﻿/* General Page Background */
+body {
+    background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    /* Убедитесь, что Font Awesome CSS также подключен в вашем _Layout.cshtml. */
+    /* Пример: <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /> */
+}
+
+/* Page fade-in animation */
+.fade-in {
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Service Title Styling (Absolutely White Background) */
+.service-title {
+    font-size: 3.5rem; /* Adjust as needed */
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #212529; /* **Текст темно-серый/черный, чтобы быть видимым на белом фоне** */
+    text-shadow: none; /* **Убираем тень текста, так как белый фон уже дает хороший контраст** */
+    letter-spacing: 2px;
+    position: relative;
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #FFFFFF; /* **СДЕЛАН ЧИСТЫЙ БЕЛЫЙ ФОН, БЕЗ ПРОЗРАЧНОСТИ** */
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Тень для блока с текстом */
+    margin-bottom: 3rem !important;
+    z-index: 5; /* Убедимся, что заголовок всегда выше других элементов */
+    /* Легкая пульсирующая анимация для акцента */
+    animation: pulse 2s infinite alternate;
+    /* Удаляем все свойства, связанные с градиентом текста */
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: unset !important;
+    background-image: none !important;
+}
+
+/* Новая анимация пульсации для заголовка */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    100% {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Полностью УДАЛЯЕМ или ОЧЕНЬ СИЛЬНО Закомментируем подчеркивание service-title::after */
+.service-title::after {
+    /* content: ''; */
+    /* position: absolute; */
+    /* left: 50%; */
+    /* bottom: 0; */
+    /* transform: translateX(-50%); */
+    /* width: 0; */
+    /* height: 0; */
+    /* background: none; */
+    /* border-radius: 2px; */
+}
+
+
+/* Card styling */
+.service-details-card {
+    border-radius: 1.5rem !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #ffffff; /* Явно задаем белый фон для карточки */
+}
+
+    .service-details-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+/* Image styling */
+.image-wrapper {
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+    position: relative;
+    background-color: #f8f9fa;
+    padding: 5px;
+}
+
+.service-details-img {
+    height: 300px;
+    object-fit: cover;
+    width: 100%;
+    border-radius: 1rem;
+    transition: transform 0.5s ease;
+}
+
+.image-wrapper:hover .service-details-img {
+    transform: scale(1.05);
+}
+
+/* Details Grid Styling */
+.details-grid {
+    border-top: 1px solid #eee;
+    padding-top: 2rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+/* Responsive adjustment for border-bottom */
+@media (min-width: 768px) {
+    .col-md-6 .detail-item:nth-last-child(2) {
+        border-bottom: 1px dashed #e9ecef;
+    }
+
+    .col-md-6 .detail-item:nth-last-child(1) {
+        border-bottom: none;
+    }
+}
+
+.detail-icon {
+    font-size: 1.8rem;
+    color: var(--bs-primary);
+    min-width: 40px;
+    text-align: center;
+    line-height: 1;
+}
+
+.detail-item h6 {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* Стилизация названия услуги внутри карточки - оставлено как есть */
+.service-name-highlight {
+    background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый фон */
+    padding: 5px 10px; /* Отступы вокруг текста */
+    border-radius: 5px; /* Скругление углов */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    display: inline-block; /* Необходимо для применения padding и background */
+    color: #212529; /* Темный цвет текста, чтобы был виден на белом фоне */
+    font-weight: bold !important; /* Убедимся, что текст жирный */
+    font-size: 1.25rem; /* Установим размер шрифта */
+}
+
+/* Animated Buttons */
+.animated-btn {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    padding: 0.8rem 1.8rem;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .animated-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.15);
+        transition: all 0.4s ease;
+        z-index: -1;
+        transform: skewX(-20deg);
+    }
+
+    .animated-btn:hover::before {
+        left: 100%;
+    }
+
+    .animated-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+/* Customizing Bootstrap variables for consistency (optional, can be in _variables.scss if using Sass) */
+:root {
+    --bs-primary: #007bff;
+    --bs-secondary: #6c757d;
+    --bs-success: #28a745;
+}

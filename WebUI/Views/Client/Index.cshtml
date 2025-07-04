@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Личный Кабинет Клиента";
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>@ViewData["Message"]</p>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-user-circle"></i> Мой Профиль</h5>
+                    <p class="card-text">Просмотр и изменение личных данных.</p>
+                    <a asp-action="SecuritySettings" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-clipboard-list"></i> Мои Заказы</h5>
+                    <p class="card-text">Просмотр статуса ваших заказов.</p>
+                    <a asp-controller="Client" asp-action="MyOrders" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

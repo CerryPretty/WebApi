@@ -1,0 +1,287 @@
+﻿/* Custom CSS Variables for a more cohesive theme */
+:root {
+    --bs-primary: #007bff; /* Standard Bootstrap Primary */
+    --bs-primary-light: #6a90f1; /* Lighter shade of primary for subtle effects */
+    --bs-primary-dark: #0056b3; /* Darker shade for hover states */
+    --bs-success: #28a745; /* Standard Bootstrap Success */
+    --bs-success-light: #4caf50;
+    --bs-success-dark: #1e7e34; /* Darker success for hover */
+    --bs-card-bg: #ffffff; /* White card background */
+    --bs-text-color: #343a40; /* Darker text for readability */
+    --bs-light-gray: #f2f6f9; /* For subtle backgrounds */
+    --bs-border-color: #dee2e6; /* Light border color */
+    --bs-shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
+    --bs-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    --bs-shadow-lg: 0 1rem 3rem rgba(0,0,0,.175);
+}
+
+body {
+    background-color: var(--bs-light-gray); /* Subtle light background for the whole page */
+    color: var(--bs-text-color);
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* A more modern, readable font stack */
+    line-height: 1.6;
+}
+
+.display-4.text-white.bg-dark {
+    background-color: var(--bs-primary) !important; /* Use primary color for header background */
+    border-radius: 1.25rem !important; /* Slightly more rounded corners */
+    padding: 1.75rem !important;
+    box-shadow: var(--bs-shadow-lg); /* More prominent shadow for the title */
+    color: white !important;
+    font-weight: 700;
+    letter-spacing: 0.03em; /* Subtle letter spacing */
+    margin-bottom: 3rem !important; /* More space below the title */
+}
+
+.card.shadow-lg {
+    border-radius: 1rem !important; /* Consistent rounded corners */
+    box-shadow: var(--bs-shadow); /* Refined shadow */
+    background-color: var(--bs-card-bg);
+    border: none; /* Remove default card border */
+}
+
+.lead.text-center.text-muted {
+    color: #6c757d !important; /* Standard muted text */
+    margin-bottom: 3rem !important; /* More space below description */
+    font-size: 1.15rem;
+    max-width: 800px; /* Limit width for better readability */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.alert-danger {
+    border-radius: .75rem;
+    font-weight: 500;
+    margin-bottom: 2rem;
+    padding: 1rem 1.5rem; /* More padding */
+}
+
+/* Search and Filter Section */
+.input-group .form-control,
+.input-group .btn,
+.form-select {
+    border-radius: .5rem;
+    height: 50px; /* Consistent height for all controls */
+    font-size: 1rem;
+    padding: .75rem 1rem; /* Adjust padding for better look with increased height */
+}
+
+.form-select {
+    padding-right: 2.5rem; /* Space for dropdown arrow */
+    /* ИСПРАВЛЕНИЕ: Добавляем z-index и position для корректного отображения выпадающего списка */
+    z-index: 1050; /* Достаточно высокое значение, чтобы быть поверх большинства элементов Bootstrap */
+    position: relative; /* Необходимо для работы z-index */
+}
+
+/* Также можно явно указать для этих ID для большей специфичности */
+#categoryFilter {
+    z-index: 1051; /* Устанавливаем еще выше, если были другие проблемы */
+    position: relative;
+}
+
+#sortOrder {
+    z-index: 1050; /* Немного ниже, чем у категорий, или такой же, если не перекрывается */
+    position: relative;
+}
+
+
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    transition: all 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: var(--bs-primary-dark);
+        border-color: var(--bs-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--bs-shadow-sm);
+    }
+
+/* Card Specific Styles */
+.service-card .card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    border: 1px solid var(--bs-border-color); /* Light border */
+    overflow: hidden; /* Ensures image corners respect card border-radius */
+}
+
+    .service-card .card:hover {
+        transform: translateY(-8px); /* More pronounced lift */
+        box-shadow: var(--bs-shadow-lg) !important; /* Stronger shadow on hover */
+        border-color: var(--bs-primary-light); /* Highlight border on hover */
+    }
+
+.card-img-top {
+    width: 100%;
+    height: 220px; /* Slightly increased height for images */
+    object-fit: cover;
+    border-bottom: 1px solid var(--bs-border-color); /* Subtle line below image */
+}
+
+.card-body {
+    padding: 1.5rem; /* More generous padding */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-size: 1.5rem; /* Larger title */
+    font-weight: 700;
+    color: var(--bs-primary); /* Primary color for titles */
+    margin-bottom: 0.75rem;
+}
+
+.list-unstyled.small {
+    margin-top: 0.5rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.7; /* Slightly more line height for readability */
+    font-size: 0.95rem;
+}
+
+.list-unstyled li {
+    color: #6c757d; /* Muted text for details */
+    margin-bottom: 0.3rem;
+}
+
+.list-unstyled i {
+    color: var(--bs-primary); /* Icon color */
+    width: 22px; /* Align icons */
+    text-align: center;
+    margin-right: 8px; /* Space between icon and text */
+}
+
+/* Action Buttons */
+.catalog-btn {
+    min-width: 190px; /* Slightly wider buttons */
+    padding: .8rem 1.6rem; /* More padding */
+    border-radius: .75rem; /* More rounded */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+    .catalog-btn i {
+        margin-right: 10px; /* More space for icon */
+        font-size: 1.1rem;
+    }
+
+.btn-outline-primary {
+    border: 2px solid var(--bs-primary);
+    color: var(--bs-primary);
+    background-color: transparent;
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--bs-primary);
+        color: var(--bs-white);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        border-color: var(--bs-primary);
+    }
+
+.btn-success {
+    background-color: var(--bs-success); /* Use Bootstrap's success variable */
+    border-color: var(--bs-success);
+    color: var(--bs-white);
+}
+
+    .btn-success:hover {
+        background-color: var(--bs-success-dark);
+        border-color: var(--bs-success-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+/* Pagination */
+.pagination .page-item .page-link {
+    border-radius: .5rem; /* More rounded pagination buttons */
+    margin: 0 4px; /* More space between buttons */
+    padding: .8rem 1.3rem; /* Larger clickable area */
+    font-weight: 500;
+    color: var(--bs-primary);
+    border: 1px solid var(--bs-border-color);
+    transition: all 0.2s ease;
+    min-width: 45px; /* Ensure a minimum width for number links */
+    text-align: center;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: var(--bs-white);
+    box-shadow: var(--bs-shadow-sm);
+    z-index: 1; /* Bring active link to front */
+}
+
+.pagination .page-item .page-link:hover:not(.disabled) {
+    background-color: var(--bs-primary-light);
+    color: var(--bs-white);
+    border-color: var(--bs-primary-light);
+    box-shadow: var(--bs-shadow-sm);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #adb5bd; /* Lighter disabled text */
+    background-color: #e9ecef; /* Slightly darker background for disabled */
+}
+
+/* No Services Message */
+.py-5.text-center {
+    padding-top: 4rem !important; /* More padding */
+    padding-bottom: 4rem !important; /* More padding */
+}
+
+.lead.text-muted {
+    font-size: 1.3rem; /* Slightly larger text */
+    color: #6c757d !important;
+}
+
+/* Responsive adjustments for filters and buttons */
+@media (max-width: 991.98px) {
+    .col-md-6 .d-flex.justify-content-md-end {
+        justify-content: flex-start !important; /* Align filters to left on medium/small screens */
+        margin-top: 1rem;
+    }
+
+    .form-select {
+        width: 100% !important; /* Full width for selects */
+        margin-bottom: 0.5rem; /* Space between selects */
+        /* На мобильных устройствах z-index может быть менее критичен, но оставим его */
+    }
+}
+
+@media (max-width: 767.98px) {
+    .d-flex.justify-content-between.align-items-center.mt-auto.flex-wrap {
+        flex-direction: column;
+        gap: 1rem; /* Space between buttons on small screens */
+        align-items: stretch;
+    }
+
+    .catalog-btn {
+        width: 100%; /* Full width buttons on small screens */
+        margin-right: 0 !important; /* Remove margin */
+    }
+
+    .input-group-lg > .form-control,
+    .input-group-lg > .btn {
+        height: 45px; /* Slightly smaller on very small screens */
+    }
+
+    .form-select-lg {
+        height: 45px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .display-4 {
+        font-size: 2.5rem; /* Smaller title on extra small screens */
+        padding: 1.25rem !important;
+    }
+
+    .lead.text-center.text-muted {
+        font-size: 1rem;
+    }
+}

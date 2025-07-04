@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Панель Администратора";
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>@ViewData["Message"]</p>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-users"></i> Управление Пользователями</h5>
+                    <p class="card-text">Просмотр, добавление, редактирование и удаление пользователей.</p>
+                    <a asp-action="ManageUsers" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

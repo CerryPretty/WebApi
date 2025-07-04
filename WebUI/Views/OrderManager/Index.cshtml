@@ -1,0 +1,47 @@
+﻿@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = _localizer["Управление Заказами"];
+}
+
+<div class="container py-5">
+    <h1>@ViewData["Title"]</h1>
+    <p>@ViewData["Message"]</p>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-list-alt me-2"></i> @_localizer["Просмотр Всех Заказов"]</h5>
+                    <p class="card-text">@_localizer["Просмотрите список текущих и завершенных заказов."]</p>
+                    <a asp-action="ViewAllOrders" class="btn btn-primary mt-auto">@_localizer["Перейти"]</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-user-plus me-2"></i> @_localizer["Назначить Мастера"]</h5>
+                    <p class="card-text">@_localizer["Назначьте ответственного мастера для выполнения заказа."]</p>
+                    <a asp-action="AssignMaster" class="btn btn-info mt-auto">@_localizer["Назначить"]</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-box-open me-2"></i> @_localizer["Управление Каталогом Услуг"]</h5>
+                    <p class="card-text">@_localizer["Добавляйте, редактируйте и удаляйте услуги в каталоге."]</p>
+                    <a asp-action="ServiceCatalogManagement" class="btn btn-success mt-auto">@_localizer["Управлять"]</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+}
