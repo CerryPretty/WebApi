@@ -1,7 +1,4 @@
-﻿// WebUI/Models/OrderDetailViewModel.cs
-using System;
-using System.Collections.Generic;
-using WebApi.Models; // Для Order, OrderService, OrderStatus, ServiceCatalog
+﻿using WebApi.Models; 
 
 namespace WebUI.Models
 {
@@ -17,7 +14,7 @@ namespace WebUI.Models
         public OrderStatus? Status { get; set; }
         public DateTime? CompletionDate { get; set; }
         public decimal? Cost { get; set; }
-        public string? MasterComments { get; set; } // Комментарии мастера
+        public string? MasterComments { get; set; } 
 
         public ICollection<OrderService> OrderServices { get; set; } = new List<OrderService>();
     }

@@ -1,4 +1,4 @@
-﻿using System; // Добавить для DateTime
+﻿using System; 
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -20,16 +20,16 @@ namespace WebApi.Models
         [StringLength(100)]
         public string Category { get; set; }
 
-        // Новое поле: Подробное описание услуги
-        [StringLength(2000)] // Увеличьте длину по необходимости
-        public string? Description { get; set; } // Может быть null, если нет детального описания
+       
+        [StringLength(2000)]
+        public string? Description { get; set; } 
 
         [StringLength(500)]
-        public string? ImageUrl { get; set; } // URL изображения (может быть null)
+        public string? ImageUrl { get; set; } 
 
-        // Новые поля: Даты создания и последнего обновления
-        public DateTime CreatedAt { get; set; } = DateTime.Now; // Дата создания, обязательное, по умолчанию текущая
-        public DateTime? UpdatedAt { get; set; } // Дата последнего обновления, может быть null
+      
+        public DateTime CreatedAt { get; set; } = DateTime.Now; 
+        public DateTime? UpdatedAt { get; set; }
 
         public virtual ICollection<OrderService> OrderServices { get; set; }
     }

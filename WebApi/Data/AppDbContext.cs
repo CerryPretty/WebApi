@@ -2,7 +2,7 @@
 using WebApi.Models;
 using System;
 using System.Collections.Generic;
-using System.Globalization; // Добавьте это, если используете DateTime.Parse с InvariantCulture
+using System.Globalization; 
 
 namespace WebApi.Data
 {
@@ -23,7 +23,6 @@ namespace WebApi.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Конфигурация для OrderService (композитный ключ)
             modelBuilder.Entity<OrderService>()
                 .HasKey(os => new { os.OrderId, os.ServiceId });
 
@@ -37,14 +36,12 @@ namespace WebApi.Data
                 .WithMany(s => s.OrderServices)
                 .HasForeignKey(os => os.ServiceId);
 
-            // Отношение OrderLog к Order
             modelBuilder.Entity<OrderLog>()
                 .HasOne(ol => ol.Order)
                 .WithMany(o => o.OrderLogs)
                 .HasForeignKey(ol => ol.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Сидинг данных для OrderStatus (без изменений, они универсальны)
             modelBuilder.Entity<OrderStatus>().HasData(
                 new OrderStatus { Id = 1, StatusName = "Обработка заказа" },
                 new OrderStatus { Id = 2, StatusName = "Производятся ремонтные услуги" },
@@ -53,9 +50,7 @@ namespace WebApi.Data
                 new OrderStatus { Id = 5, StatusName = "Отказ" }
             );
 
-            // Сидинг данных для ServiceCatalog (ОБНОВЛЕНО для новых полей Description, ImageUrl, CreatedAt, UpdatedAt)
             modelBuilder.Entity<ServiceCatalog>().HasData(
-                // Услуги механического ремонта
                 new ServiceCatalog
                 {
                     Id = 1,
@@ -226,7 +221,6 @@ namespace WebApi.Data
                     UpdatedAt = null
                 },
 
-                // Промышленные станки и оборудование (если завод еще и продает)
                 new ServiceCatalog
                 {
                     Id = 16,
@@ -251,21 +245,19 @@ namespace WebApi.Data
                 }
             );
 
-            // Сидинг данных для Order (АДАПТИРОВАНО под новые поля в ServiceCatalog)
-            // Используем фиктивные ClientId, ManagerId, MasterId. В реальной системе это должны быть GUID'ы из AspNetUsers.
             modelBuilder.Entity<Order>().HasData(
                 new Order
                 {
                     Id = 1,
                     OrderNumber = "ORD01",
                     CreatedDate = DateTime.Parse("2024-05-02T10:30:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
-                    ClientId = "client_metalprofile_id", // Фиктивный ID клиента
-                    ManagerId = "manager_john_doe_id",    // Фиктивный ID менеджера
-                    MasterId = "master_alex_smith_id",    // Фиктивный ID мастера
-                    StatusId = 1, // Обработка заказа
+                    ClientId = "client_metalprofile_id", 
+                    ManagerId = "manager_john_doe_id",    
+                    MasterId = "master_alex_smith_id",    
+                    StatusId = 1, 
                     ProblemDescription = "Дизельный двигатель Д-240: Снижение мощности, повышенный расход топлива",
                     StartDate = DateTime.Parse("2024-05-03T09:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
-                    CompletionDate = null, // Еще в работе
+                    CompletionDate = null, 
                     Cost = 15000m,
                     ManagerComments = "Необходим полный капитальный ремонт, согласовано с клиентом.",
                     MasterComments = null,
@@ -279,7 +271,7 @@ namespace WebApi.Data
                     ClientId = "client_hydropress_id",
                     ManagerId = "manager_jane_doe_id",
                     MasterId = "master_bob_johnson_id",
-                    StatusId = 2, // Производятся ремонтные услуги
+                    StatusId = 2, 
                     ProblemDescription = "Гидравлический пресс П3236: Неисправность гидравлической системы, утечка масла.",
                     StartDate = DateTime.Parse("2024-05-12T10:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     CompletionDate = null,
@@ -296,7 +288,7 @@ namespace WebApi.Data
                     ClientId = "client_stroymash_id",
                     ManagerId = "manager_john_doe_id",
                     MasterId = "master_alex_smith_id",
-                    StatusId = 3, // Готов к выдаче
+                    StatusId = 3, 
                     ProblemDescription = "Токарный станок 1К62: Требуется заточка резцов.",
                     StartDate = DateTime.Parse("2024-05-16T11:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     CompletionDate = DateTime.Parse("2024-05-16T15:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
@@ -313,7 +305,7 @@ namespace WebApi.Data
                     ClientId = "client_promkomplekt_id",
                     ManagerId = "manager_jane_doe_id",
                     MasterId = "master_bob_johnson_id",
-                    StatusId = 1, // Обработка заказа
+                    StatusId = 1, 
                     ProblemDescription = "Подъемный кран РДК-25: Износ редуктора, повышенный шум при работе.",
                     StartDate = null,
                     CompletionDate = null,
@@ -330,7 +322,7 @@ namespace WebApi.Data
                     ClientId = "client_agrotech_id",
                     ManagerId = "manager_john_doe_id",
                     MasterId = "master_alex_smith_id",
-                    StatusId = 2, // Производятся ремонтные услуги
+                    StatusId = 2, 
                     ProblemDescription = "Насос центробежный НЦ-500: Неисправность, требуется дефектовка для определения причины.",
                     StartDate = DateTime.Parse("2024-06-22T09:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     CompletionDate = null,
@@ -347,7 +339,7 @@ namespace WebApi.Data
                     ClientId = "client_ivanov_id",
                     ManagerId = "manager_john_doe_id",
                     MasterId = "master_bob_johnson_id",
-                    StatusId = 1, // Обработка заказа
+                    StatusId = 1, 
                     ProblemDescription = "Металлоконструкция (Рама станка): Обнаружена трещина в несущей раме.",
                     StartDate = null,
                     CompletionDate = null,
@@ -364,7 +356,7 @@ namespace WebApi.Data
                     ClientId = "client_electrosys_id",
                     ManagerId = "manager_jane_doe_id",
                     MasterId = "master_alex_smith_id",
-                    StatusId = 2, // Производятся ремонтные услуги
+                    StatusId = 2, 
                     ProblemDescription = "Промышленный контроллер Siemens S7-1200: Сбой в работе, ошибки программы.",
                     StartDate = DateTime.Parse("2024-06-20T09:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     CompletionDate = null,
@@ -381,7 +373,7 @@ namespace WebApi.Data
                     ClientId = "client_automatika_id",
                     ManagerId = "manager_john_doe_id",
                     MasterId = "master_bob_johnson_id",
-                    StatusId = 3, // Готов к выдаче
+                    StatusId = 3, 
                     ProblemDescription = "Датчик давления Rosemount 3051: Показания неточные, требуется калибровка.",
                     StartDate = DateTime.Parse("2024-06-13T09:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     CompletionDate = DateTime.Parse("2024-06-13T16:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
@@ -397,8 +389,8 @@ namespace WebApi.Data
                     CreatedDate = DateTime.Parse("2024-04-12T16:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     ClientId = "client_remstroymash_id",
                     ManagerId = "manager_jane_doe_id",
-                    MasterId = null, // Это продажа, мастер может не быть назначен
-                    StatusId = 4, // Оплачено (если продажа уже завершена)
+                    MasterId = null, 
+                    StatusId = 4, 
                     ProblemDescription = "Покупка восстановленного токарного станка 1К62.",
                     StartDate = null,
                     CompletionDate = DateTime.Parse("2024-04-15T10:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal), // Дата продажи/отгрузки
@@ -414,8 +406,8 @@ namespace WebApi.Data
                     CreatedDate = DateTime.Parse("2024-05-04T10:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     ClientId = "client_gomelcasting_id",
                     ManagerId = "manager_john_doe_id",
-                    MasterId = null, // Продажа
-                    StatusId = 1, // В обработке (оформление документов)
+                    MasterId = null, 
+                    StatusId = 1, 
                     ProblemDescription = "Покупка сварочного аппарата КЕМППИ MasterTig 2350.",
                     StartDate = null,
                     CompletionDate = null,
@@ -426,23 +418,20 @@ namespace WebApi.Data
                 }
             );
 
-            // Сидинг данных для OrderService (СВЯЗАНО с новыми ID и добавлены Quantity, UnitPrice)
-            // UnitPrice берется из ServiceCatalog, Quantity = 1 для простоты.
             modelBuilder.Entity<OrderService>().HasData(
-                new OrderService { OrderId = 1, ServiceId = 1, Quantity = 1, UnitPrice = 15000m }, // Капитальный ремонт Д-240
-                new OrderService { OrderId = 1, ServiceId = 14, Quantity = 1, UnitPrice = 1200m }, // + Комплект прокладок к Д-240
-                new OrderService { OrderId = 2, ServiceId = 2, Quantity = 1, UnitPrice = 1200m },  // Диагностика гидравлики
-                new OrderService { OrderId = 3, ServiceId = 3, Quantity = 5, UnitPrice = 300m },    // Заточка 5 резцов
-                new OrderService { OrderId = 4, ServiceId = 4, Quantity = 1, UnitPrice = 8000m },  // Ремонт редуктора крана
-                new OrderService { OrderId = 5, ServiceId = 5, Quantity = 1, UnitPrice = 700m },    // Дефектовка насоса
-                new OrderService { OrderId = 6, ServiceId = 6, Quantity = 1, UnitPrice = 2500m },  // Сварочные работы по восстановлению конструкции
-                new OrderService { OrderId = 7, ServiceId = 9, Quantity = 1, UnitPrice = 6000m },  // Ремонт промышленного контроллера Siemens S7
-                new OrderService { OrderId = 8, ServiceId = 10, Quantity = 1, UnitPrice = 900m }, // Калибровка датчиков давления
-                new OrderService { OrderId = 9, ServiceId = 16, Quantity = 1, UnitPrice = 85000m },// Продажа Токарный станок 1К62
-                new OrderService { OrderId = 10, ServiceId = 17, Quantity = 1, UnitPrice = 32000m } // Продажа Сварочный аппарат КЕМППИ
+                new OrderService { OrderId = 1, ServiceId = 1, Quantity = 1, UnitPrice = 15000m }, 
+                new OrderService { OrderId = 1, ServiceId = 14, Quantity = 1, UnitPrice = 1200m }, 
+                new OrderService { OrderId = 2, ServiceId = 2, Quantity = 1, UnitPrice = 1200m },  
+                new OrderService { OrderId = 3, ServiceId = 3, Quantity = 5, UnitPrice = 300m },   
+                new OrderService { OrderId = 4, ServiceId = 4, Quantity = 1, UnitPrice = 8000m },  
+                new OrderService { OrderId = 5, ServiceId = 5, Quantity = 1, UnitPrice = 700m },   
+                new OrderService { OrderId = 6, ServiceId = 6, Quantity = 1, UnitPrice = 2500m }, 
+                new OrderService { OrderId = 7, ServiceId = 9, Quantity = 1, UnitPrice = 6000m },  
+                new OrderService { OrderId = 8, ServiceId = 10, Quantity = 1, UnitPrice = 900m }, 
+                new OrderService { OrderId = 9, ServiceId = 16, Quantity = 1, UnitPrice = 85000m },
+                new OrderService { OrderId = 10, ServiceId = 17, Quantity = 1, UnitPrice = 32000m } 
             );
 
-            // Сидинг данных для OrderLog (АДАПТИРОВАНО под новые поля и ДОБАВЛЕНО)
             modelBuilder.Entity<OrderLog>().HasData(
                 new OrderLog
                 {
@@ -509,7 +498,7 @@ namespace WebApi.Data
                     UserId = "master_alex_smith_id",
                     UserDisplayName = "Алекс Смит (Мастер)"
                 },
-                // Новые записи логов
+              
                 new OrderLog
                 {
                     Id = 6,
@@ -529,7 +518,7 @@ namespace WebApi.Data
                     EventDate = DateTime.Parse("2024-06-15T10:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     OrderId = 4,
                     OrderNumber = "ORD04",
-                    ItemCode = "PART01", // Пример кода для запчасти
+                    ItemCode = "PART01", 
                     ItemName = "Подшипники для редуктора",
                     CustomerName = "УП 'ПромКомплект'",
                     EventDescription = "Запчасти для редуктора получены на склад.",
@@ -594,7 +583,7 @@ namespace WebApi.Data
                     EventDate = DateTime.Parse("2024-04-12T16:30:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
                     OrderId = 9,
                     OrderNumber = "ORD09",
-                    ItemCode = "EQP001", // Код для оборудования
+                    ItemCode = "EQP001", 
                     ItemName = "Токарный станок 1К62 (б/у)",
                     CustomerName = "СП 'РемСтройМаш'",
                     EventDescription = "Заказ продажи станка создан. Согласование условий.",

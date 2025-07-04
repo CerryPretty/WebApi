@@ -1,16 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks; // Still needed for UserManager and potentially IOrderService
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
-using WebApi.Intarface; // For IServiceCatalogService and IService
+using WebApi.Intarface; 
 using WebApi.Models;
-using WebUI.Models; // Assuming ServiceCatalogViewModel and ErrorViewModel are here
-using System;
+using WebUI.Models; 
 using System.Globalization;
 
 namespace WebUI.Controllers
@@ -20,8 +15,8 @@ namespace WebUI.Controllers
     {
         private readonly ILogger<OrderManagerController> _logger;
         private readonly IStringLocalizer<SharedResource> _localizer;
-        private readonly IOrderService _orderService; // Assuming this service might have async methods
-        private readonly UserManager<ApplicationUser> _userManager; // UserManager is inherently async
+        private readonly IOrderService _orderService; 
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IServiceCatalogService _serviceCatalogService;
 
         public OrderManagerController(
@@ -45,13 +40,11 @@ namespace WebUI.Controllers
             return View();
         }
 
-        // This action *must* remain async because of UserManager.FindByIdAsync
         public async Task<IActionResult> ViewAllOrders()
         {
             ViewData["Title"] = _localizer["Просмотр Всех Заказов"];
             try
             {
-                // Assuming _orderService.GetAllOrders() is synchronous or needs no await
                 var allWebApiOrders = _orderService.GetAllOrders();
 
                 var allOrdersViewModels = new List<OrderViewModel>();
@@ -60,14 +53,14 @@ namespace WebUI.Controllers
                     string managerDisplayName = "N/A";
                     if (!string.IsNullOrEmpty(o.ManagerId))
                     {
-                        var manager = await _userManager.FindByIdAsync(o.ManagerId); // AWAIT still needed here
+                        var manager = await _userManager.FindByIdAsync(o.ManagerId); 
                         managerDisplayName = manager?.UserName ?? "N/A";
                     }
 
                     string masterDisplayName = "N/A";
                     if (!string.IsNullOrEmpty(o.MasterId))
                     {
-                        var master = await _userManager.FindByIdAsync(o.MasterId); // AWAIT still needed here
+                        var master = await _userManager.FindByIdAsync(o.MasterId);
                         masterDisplayName = master?.UserName ?? "N/A";
                     }
 
@@ -113,7 +106,6 @@ namespace WebUI.Controllers
             }
         }
 
-        // This action *must* remain async because of UserManager.GetUsersInRoleAsync
         [HttpGet]
         public async Task<IActionResult> AssignMaster(int? orderId)
         {
@@ -121,9 +113,8 @@ namespace WebUI.Controllers
 
             try
             {
-                // Assuming _orderService.GetOrdersByStatusId(1) is synchronous
                 var newOrders = _orderService.GetOrdersByStatusId(1);
-                var masters = await _userManager.GetUsersInRoleAsync("Мастер"); // AWAIT still needed here
+                var masters = await _userManager.GetUsersInRoleAsync("Мастер"); 
 
                 if (!newOrders.Any())
                 {
@@ -155,7 +146,6 @@ namespace WebUI.Controllers
                 if (orderId.HasValue && orderListItems.Any(o => o.Value == orderId.Value.ToString()))
                 {
                     model.SelectedOrderId = orderId.Value;
-                    // Assuming _orderService.GetOrderById(orderId.Value) is synchronous
                     var preselectedOrder = _orderService.GetOrderById(orderId.Value);
                     if (preselectedOrder != null)
                     {
@@ -174,16 +164,14 @@ namespace WebUI.Controllers
             }
         }
 
-        // This action *must* remain async because of UserManager.FindByIdAsync and GetUsersInRoleAsync
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignMaster(AssignMasterViewModel model)
         {
             ViewData["Title"] = _localizer["Назначить Мастера"];
 
-            // Re-populate dropdowns in case of ModelState errors
-            var newOrders = _orderService.GetOrdersByStatusId(1); // Assuming synchronous
-            var masters = await _userManager.GetUsersInRoleAsync("Мастер"); // AWAIT still needed here
+            var newOrders = _orderService.GetOrdersByStatusId(1); 
+            var masters = await _userManager.GetUsersInRoleAsync("Мастер"); 
 
             model.Orders = newOrders.Select(o => new SelectListItem
             {
@@ -204,7 +192,7 @@ namespace WebUI.Controllers
 
             try
             {
-                var orderToUpdate = _orderService.GetOrderById(model.SelectedOrderId); // Assuming synchronous
+                var orderToUpdate = _orderService.GetOrderById(model.SelectedOrderId); 
 
                 if (orderToUpdate == null)
                 {
@@ -220,8 +208,8 @@ namespace WebUI.Controllers
                     return View(model);
                 }
 
-                var masterUser = await _userManager.FindByIdAsync(model.SelectedMasterId); // AWAIT still needed here
-                if (masterUser == null || !(await _userManager.IsInRoleAsync(masterUser, "Мастер"))) // AWAIT still needed here
+                var masterUser = await _userManager.FindByIdAsync(model.SelectedMasterId);
+                if (masterUser == null || !(await _userManager.IsInRoleAsync(masterUser, "Мастер"))) 
                 {
                     ModelState.AddModelError(string.Empty, _localizer["MasterNotFoundOrInvalid"].Value);
                     _logger.LogWarning($"Attempt to assign a non-existent master or a user without 'Мастер' role with ID: {model.SelectedMasterId}");
@@ -234,7 +222,7 @@ namespace WebUI.Controllers
                 orderToUpdate.Cost = model.Cost;
                 orderToUpdate.ManagerComments = model.ManagerComments;
 
-                _orderService.UpdateOrder(orderToUpdate); // Assuming synchronous
+                _orderService.UpdateOrder(orderToUpdate); 
 
                 _logger.LogInformation($"Master {masterUser.UserName} assigned to order №{orderToUpdate.OrderNumber} (ID: {orderToUpdate.Id}). Status changed to 2. Cost updated to {orderToUpdate.Cost}. Manager comments: '{model.ManagerComments}'.");
                 TempData["SuccessMessage"] = _localizer["MasterAssignedAndOrderUpdatedSuccessfully"].Value;
@@ -243,7 +231,6 @@ namespace WebUI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while assigning master and updating order ID: {model.SelectedOrderId}.");
-                // Corrected line: Directly use .Value property to get the string from LocalizedString
                 TempData["ErrorMessage"] = _localizer["ErrorAssigningMasterAndUpdatingOrder"].Value;
                 return View(model);
             }
@@ -254,7 +241,7 @@ namespace WebUI.Controllers
         {
             try
             {
-                var order = _orderService.GetOrderById(orderId); // Assuming synchronous
+                var order = _orderService.GetOrderById(orderId); 
                 if (order != null)
                 {
                     return Json(new { cost = order.Cost ?? 0m, managerComments = order.ManagerComments });
@@ -287,16 +274,13 @@ namespace WebUI.Controllers
             return View(errorViewModel);
         }
 
-        // --- Service Catalog Actions (All Synchronous) ---
-
         [HttpGet]
         public IActionResult ServiceCatalogManagement()
         {
             ViewData["Title"] = _localizer["Управление Каталогом Услуг"];
             try
             {
-                // Calling the synchronous GetAll() from the base interface
-                var services = _serviceCatalogService.GetAll().ToList(); // Convert IQueryable to List for view model
+                var services = _serviceCatalogService.GetAll().ToList(); 
 
                 var serviceViewModels = services.Select(s => new ServiceCatalogViewModel
                 {
@@ -344,10 +328,8 @@ namespace WebUI.Controllers
                     Category = model.Category,
                     Description = model.Description,
                     ImageUrl = model.ImageUrl
-                    // CreatedAt will be set in the service
                 };
 
-                // Calling the synchronous Create() from the base interface
                 _serviceCatalogService.Create(service);
                 TempData["SuccessMessage"] = _localizer["ServiceAddedSuccessfully"].Value;
                 _logger.LogInformation($"New service '{service.ServiceName}' added to catalog.");
@@ -367,7 +349,6 @@ namespace WebUI.Controllers
             ViewData["Title"] = _localizer["Редактировать Услугу"];
             try
             {
-                // Calling the synchronous Get(int id) from the base interface
                 var service = _serviceCatalogService.Get(id);
 
                 if (service == null)
@@ -408,7 +389,6 @@ namespace WebUI.Controllers
 
             try
             {
-                // Calling the synchronous Get(int id) from the base interface
                 var serviceToUpdate = _serviceCatalogService.Get(model.Id);
                 if (serviceToUpdate == null)
                 {
@@ -421,9 +401,7 @@ namespace WebUI.Controllers
                 serviceToUpdate.Category = model.Category;
                 serviceToUpdate.Description = model.Description;
                 serviceToUpdate.ImageUrl = model.ImageUrl;
-                // UpdatedAt will be set in the service
-
-                // Calling the synchronous Update() from the base interface
+                
                 _serviceCatalogService.Update(serviceToUpdate);
                 TempData["SuccessMessage"] = _localizer["ServiceUpdatedSuccessfully"].Value;
                 _logger.LogInformation($"Service '{serviceToUpdate.ServiceName}' (ID: {serviceToUpdate.Id}) updated.");
@@ -443,7 +421,6 @@ namespace WebUI.Controllers
             ViewData["Title"] = _localizer["Удалить Услугу"];
             try
             {
-                // Calling the synchronous Get(int id) from the base interface
                 var service = _serviceCatalogService.Get(id);
 
                 if (service == null)
@@ -478,7 +455,6 @@ namespace WebUI.Controllers
             ViewData["Title"] = _localizer["Удалить Услугу"];
             try
             {
-                // First, try to get the service to ensure it exists before deleting
                 var serviceToDelete = _serviceCatalogService.Get(id);
                 if (serviceToDelete == null)
                 {
@@ -486,7 +462,6 @@ namespace WebUI.Controllers
                     return RedirectToAction(nameof(ServiceCatalogManagement));
                 }
 
-                // Calling the synchronous Delete() from the base interface
                 _serviceCatalogService.Delete(id);
                 TempData["SuccessMessage"] = _localizer["ServiceDeletedSuccessfully"].Value;
                 _logger.LogInformation($"Service with ID: {id} deleted.");
@@ -496,7 +471,6 @@ namespace WebUI.Controllers
             {
                 _logger.LogError(ex, $"Error deleting service with ID: {id}.");
                 TempData["ErrorMessage"] = _localizer["ErrorDeletingService"].Value;
-                // If deletion fails, fetch the service again to display on the view
                 var serviceToDisplay = _serviceCatalogService.Get(id);
                 if (serviceToDisplay != null)
                 {
@@ -511,7 +485,7 @@ namespace WebUI.Controllers
                     };
                     return View(model);
                 }
-                return RedirectToAction("Error"); // Fallback if service can't be found even for display
+                return RedirectToAction("Error"); 
             }
         }
     }

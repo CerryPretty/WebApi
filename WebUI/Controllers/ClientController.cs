@@ -1,17 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using WebApi.Intarface;
 using WebUI.Models;
-using WebUI; // Убедитесь, что это содержит SharedResource и ApplicationUser
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
-using System.Linq;
 
 namespace WebUI.Controllers
 {
@@ -23,7 +17,7 @@ namespace WebUI.Controllers
         private readonly IServiceCatalogService _serviceCatalogService;
         private readonly IOrderService _orderService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager; // Добавлен SignInManager
+        private readonly SignInManager<ApplicationUser> _signInManager; 
 
         public ClientController(
             ILogger<ClientController> logger,
@@ -31,14 +25,14 @@ namespace WebUI.Controllers
             IServiceCatalogService serviceCatalogService,
             IOrderService orderService,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager) // Инжектируем SignInManager
+            SignInManager<ApplicationUser> signInManager) 
         {
             _logger = logger;
             _localizer = localizer;
             _serviceCatalogService = serviceCatalogService;
             _orderService = orderService;
             _userManager = userManager;
-            _signInManager = signInManager; // Присваиваем
+            _signInManager = signInManager; 
         }
 
         public IActionResult Index()
@@ -65,7 +59,7 @@ namespace WebUI.Controllers
                 {
                     _logger.LogWarning("Попытка доступа к заказам неавторизованным пользователем или пользователем без ID.");
                     TempData["ErrorMessage"] = _localizer["AuthenticationRequired"].Value;
-                    return RedirectToAction("Login", "Account"); // Убедитесь, что у вас есть AccountController
+                    return RedirectToAction("Login", "Account"); 
                 }
 
                 var clientOrders = await _orderService.GetOrdersByClientId(userId);
@@ -86,7 +80,6 @@ namespace WebUI.Controllers
             }
         }
 
-        // НОВЫЙ Action для отображения страницы оплаты заказа
         [HttpGet]
         public async Task<IActionResult> PayOrder(int orderId)
         {
@@ -97,11 +90,9 @@ namespace WebUI.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // You should use an async method here if your service layer provides one.
-            // For example: var order = await _orderService.GetAsync(orderId);
-            var order = _orderService.Get(orderId); // Получаем заказ с услугами для отображения
+            var order = _orderService.Get(orderId);
 
-            if (order == null || order.ClientId != userId || order.StatusId != 3) // Проверяем статус: только "Выполнен" (3) может быть оплачен
+            if (order == null || order.ClientId != userId || order.StatusId != 3)
             {
                 TempData["ErrorMessage"] = "Заказ не найден, не принадлежит вам, или не находится в статусе 'Выполнен' для оплаты.";
                 return RedirectToAction("MyOrders");
@@ -140,8 +131,8 @@ namespace WebUI.Controllers
             return View(viewModel);
         }
 
-        [HttpPost] // Важно: этот Action должен вызываться POST-запросом
-        [ValidateAntiForgeryToken] // Защита от CSRF
+        [HttpPost] 
+        [ValidateAntiForgeryToken] 
         public IActionResult ProcessPayment(int orderId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -154,35 +145,32 @@ namespace WebUI.Controllers
 
             var orderToPay = _orderService.GetOrderById(orderId);
 
-            // Проверяем, что заказ существует, принадлежит текущему клиенту и находится в статусе "Выполнен" (StatusId = 3)
             if (orderToPay == null || orderToPay.ClientId != userId || orderToPay.StatusId != 3)
             {
                 TempData["ErrorMessage"] = "Заказ не найден, не принадлежит вам, или не находится в статусе 'Выполнен/Ожидает оплаты'.";
                 return RedirectToAction("MyOrders");
             }
 
-            // Изменяем статус заказа на "Оплачен" (предполагаем StatusId = 4)
             orderToPay.StatusId = 4;
-            orderToPay.CompletionDate = DateTime.Now; // Устанавливаем дату завершения/оплаты
+            orderToPay.CompletionDate = DateTime.Now; 
 
             try
             {
-                _orderService.UpdateOrder(orderToPay); // Обновляем заказ в базе данных
+                _orderService.UpdateOrder(orderToPay); 
                 TempData["SuccessMessage"] = $"Заказ №{orderToPay.OrderNumber} успешно оплачен!";
             }
             catch (Exception ex)
             {
-                // Логирование ошибки (для продакшна используйте настоящий логгер)
                 Console.WriteLine($"Ошибка при оплате заказа {orderId}: {ex.Message}");
                 TempData["ErrorMessage"] = $"Произошла ошибка при оплате заказа: {ex.Message}";
             }
 
-            return RedirectToAction("MyOrders"); // Всегда перенаправляем на страницу "Мои заказы"
+            return RedirectToAction("MyOrders"); 
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CancelOrder([FromBody] int orderId) // <--- Ключевое изменение здесь: [FromBody]
+        public IActionResult CancelOrder([FromBody] int orderId) 
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -198,14 +186,12 @@ namespace WebUI.Controllers
                 return Json(new { success = false, message = "Заказ не найден." });
             }
 
-            // You should add a check here to ensure the order belongs to the current user
-            // if you haven't already done so in GetOrderById.
             if (orderToCancel.ClientId != userId)
             {
                 return Json(new { success = false, message = "У вас нет прав для отмены этого заказа." });
             }
 
-            orderToCancel.StatusId = 5; // Assuming 5 is "Cancelled"
+            orderToCancel.StatusId = 5; 
             orderToCancel.CompletionDate = DateTime.Now;
 
             try
@@ -298,7 +284,6 @@ namespace WebUI.Controllers
                     return RedirectToAction("Error");
                 }
 
-                // Calculate the total cost
                 decimal totalCost = model.Quantity * model.UnitPrice;
 
                 var newOrder = new WebApi.Models.Order
@@ -307,10 +292,10 @@ namespace WebUI.Controllers
                     CreatedDate = DateTime.Now,
                     ClientId = User.FindFirstValue(ClaimTypes.NameIdentifier),
                     ClientDisplayName = User.Identity.Name,
-                    StatusId = 1, // Предполагается, что 1 - это начальный статус, например "Новый"
+                    StatusId = 1, 
                     ProblemDescription = model.ProblemDescription,
                     ManagerId = managerId,
-                    Cost = totalCost // --- Assign the calculated total cost here ---
+                    Cost = totalCost 
                 };
 
                 var orderServices = new List<WebApi.Models.OrderService>
@@ -359,7 +344,6 @@ namespace WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Initialize both nested models for the GET request
             var model = new SecuritySettingsViewModel
             {
                 CurrentUserName = user.UserName,
@@ -382,17 +366,15 @@ namespace WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Re-fetch or create a complete SecuritySettingsViewModel for displaying errors
             var securitySettingsModel = new SecuritySettingsViewModel
             {
                 CurrentUserName = userToUpdate.UserName,
-                ChangePassword = model, // Assign the submitted model
-                ChangeUsername = new ChangeUsernameViewModel() // Initialize the other form's model
+                ChangePassword = model, 
+                ChangeUsername = new ChangeUsernameViewModel() 
             };
 
             if (!ModelState.IsValid)
             {
-                // If the submitted password model is invalid, return the view with errors
                 return View("SecuritySettings", securitySettingsModel);
             }
 
@@ -435,17 +417,15 @@ namespace WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Re-fetch or create a complete SecuritySettingsViewModel for displaying errors
             var securitySettingsModel = new SecuritySettingsViewModel
             {
                 CurrentUserName = userToUpdate.UserName,
-                ChangeUsername = model, // Assign the submitted model
-                ChangePassword = new ChangePasswordViewModel() // Initialize the other form's model
+                ChangeUsername = model, 
+                ChangePassword = new ChangePasswordViewModel() 
             };
 
             if (!ModelState.IsValid)
             {
-                // If the submitted username model is invalid, return the view with errors
                 return View("SecuritySettings", securitySettingsModel);
             }
 

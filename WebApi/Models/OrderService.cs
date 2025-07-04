@@ -5,7 +5,7 @@ namespace WebApi.Models
 {
     public class OrderService
     {
-        // Композитный ключ OrderId и ServiceId
+       
         public int OrderId { get; set; }
         [ForeignKey("OrderId")]
         public virtual Order Order { get; set; }

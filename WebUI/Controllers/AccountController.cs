@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebUI.Models;
-using System.Linq; // Add this using directive for LINQ methods
 
 namespace WebUI.Controllers
 {
@@ -35,7 +34,6 @@ namespace WebUI.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Redirect ALL successful logins to the Home page
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -75,14 +73,11 @@ namespace WebUI.Controllers
                 IdentityResult result = await userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // Assign the "Клиент" role to newly registered users by default
-                    // This part remains, as it's about role assignment, not redirection
                     var roleResult = await userManager.AddToRoleAsync(user, "Клиент");
                     if (roleResult.Succeeded)
                     {
                         await signInManager.SignInAsync(user, isPersistent: false);
 
-                        // Redirect ALL successful registrations to the Home page
                         return RedirectToAction("Index", "Home");
                     }
                     else

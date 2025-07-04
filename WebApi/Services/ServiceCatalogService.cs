@@ -33,7 +33,6 @@ namespace WebApi.Services
             return _context.ServiceCatalogs.Find(id);
         }
 
-        // *** Added this method in the previous turn, so it's included here. ***
         public async Task<ServiceCatalog> GetServiceCatalogById(int id)
         {
             return await _context.ServiceCatalogs.FirstOrDefaultAsync(s => s.Id == id);

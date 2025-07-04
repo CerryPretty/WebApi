@@ -1,14 +1,9 @@
-﻿// File: WebUI.Controllers/MasterController.cs
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Localization;
-using System;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using WebApi.Intarface;
 using WebApi.Models;
 using WebUI.Models;
@@ -107,8 +102,6 @@ namespace WebUI.Controllers
             return RedirectToAction("ReportProduction", new { orderId = orderId });
         }
 
-
-        // GET-Action for the "Report Production" page
         [HttpGet]
         public async Task<IActionResult> ReportProduction(int? orderId)
         {
@@ -120,7 +113,6 @@ namespace WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            // GetOrdersByMasterId already includes OrderServices and ServiceCatalog, which is good.
             var masterOrders = _orderService.GetOrdersByMasterId(userId)
                                              .Where(o => o.StatusId == 2)
                                              .ToList();
@@ -147,13 +139,11 @@ namespace WebUI.Controllers
                     viewModel.Cost = selectedOrder.Cost;
                     viewModel.ManagerComments = selectedOrder.ManagerComments;
 
-                    // --- NEW: Populate service names for the selected order ---
                     var serviceNames = selectedOrder.OrderServices
                                                      .Where(os => os.Service != null)
                                                      .Select(os => os.Service.ServiceName)
                                                      .ToList();
                     viewModel.ServiceNamesForSelectedOrder = serviceNames.Any() ? string.Join(", ", serviceNames) : _localizer["Не указана"].Value;
-                    // --- END NEW ---
                 }
                 else
                 {
@@ -169,7 +159,6 @@ namespace WebUI.Controllers
             return View(viewModel);
         }
 
-        // POST-Action for submitting the production report
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ReportProduction(ReportProductionViewModel model)
@@ -187,10 +176,9 @@ namespace WebUI.Controllers
 
             if (!ModelState.IsValid)
             {
-                // If model state is invalid, re-populate ServiceNamesForSelectedOrder for the view
                 if (model.SelectedOrderId.HasValue)
                 {
-                    var selectedOrder = _orderService.GetOrderById(model.SelectedOrderId.Value); // Needs eager loading
+                    var selectedOrder = _orderService.GetOrderById(model.SelectedOrderId.Value); 
                     if (selectedOrder != null && selectedOrder.MasterId == userId)
                     {
                         var serviceNames = selectedOrder.OrderServices
@@ -198,8 +186,8 @@ namespace WebUI.Controllers
                                                          .Select(os => os.Service.ServiceName)
                                                          .ToList();
                         model.ServiceNamesForSelectedOrder = serviceNames.Any() ? string.Join(", ", serviceNames) : _localizer["Не указана"].Value;
-                        model.ManagerComments = selectedOrder.ManagerComments; // Re-populate manager comments too
-                        model.Cost = selectedOrder.Cost; // Re-populate cost to avoid losing data if it was pre-filled
+                        model.ManagerComments = selectedOrder.ManagerComments; 
+                        model.Cost = selectedOrder.Cost; 
                     }
                 }
                 TempData["ErrorMessage"] = "Пожалуйста, исправьте ошибки в форме.";

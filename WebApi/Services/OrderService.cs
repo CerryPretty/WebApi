@@ -1,11 +1,8 @@
 ﻿using WebApi.Intarface;
-using WebApi.Models; // Keep this using for WebApi.Models.Order
-using System.Linq;
+using WebApi.Models;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace WebApi.Services
 {
@@ -18,7 +15,6 @@ namespace WebApi.Services
             _context = context;
         }
 
-        // --- Методы, требуемые OrderManagerController (синхронные) ---
         public IEnumerable<Order> GetAllOrders()
         {
             return _context.Orders
@@ -54,7 +50,7 @@ namespace WebApi.Services
             return _context.Orders
                            .Include(o => o.Status)
                            .Include(o => o.OrderServices)
-                               .ThenInclude(os => os.Service) // To load associated services
+                               .ThenInclude(os => os.Service)
                            .AsQueryable();
         }
 
@@ -90,46 +86,40 @@ namespace WebApi.Services
             }
         }
 
-        // --- FIXED METHOD: Explicitly qualify WebApi.Models.OrderService ---
         public async Task CreateOrderWithServices(Order order, IEnumerable<WebApi.Models.OrderService> orderServices)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    // Add the main order first
                     await _context.Orders.AddAsync(order);
-                    await _context.SaveChangesAsync(); // Save to get the Order.Id
+                    await _context.SaveChangesAsync();
 
-                    // Assign the newly generated OrderId to each WebApi.Models.OrderService entry
-                    foreach (var os in orderServices) // 'os' is correctly inferred as WebApi.Models.OrderService now
+                    foreach (var os in orderServices)
                     {
                         os.OrderId = order.Id;
                         await _context.OrderServices.AddAsync(os);
                     }
 
-                    await _context.SaveChangesAsync(); // Save the OrderService entries
-                    await transaction.CommitAsync(); // Commit the transaction if all is successful
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
                 }
                 catch (Exception ex)
                 {
-                    await transaction.RollbackAsync(); // Rollback if any error occurs
-                    // Log the exception if you have a logger here
-                    throw new Exception("Error creating order with services.", ex); // Re-throw with a more specific message
+                    await transaction.RollbackAsync();
+                    throw new Exception("Error creating order with services.", ex);
                 }
             }
         }
-        // --- END FIXED METHOD ---
 
         public async Task<IEnumerable<Order>> GetOrdersByClientId(string clientId)
         {
             return await _context.Orders
                                  .Where(o => o.ClientId == clientId)
-                                 .Include(o => o.OrderServices) // Include related order services
-                                     .ThenInclude(os => os.Service) // Then include the actual service details
-                                 .Include(o => o.Status)       // Include the order status
-                                      // Include manager details
-                                 .ToListAsync(); // <-- THIS IS THE KEY CHANGE
+                                 .Include(o => o.OrderServices)
+                                     .ThenInclude(os => os.Service)
+                                 .Include(o => o.Status)
+                                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Order>> GetOrdersByClientIdAsync(string clientId)
@@ -148,17 +138,13 @@ namespace WebApi.Services
                            .AsQueryable();
         }
 
-        // Пример реализации GetOrdersByMasterId в вашем OrderService (не интерфейс!)
         public IQueryable<Order> GetOrdersByMasterId(string masterId)
         {
-            // Eager Loading: Подгружаем OrderServices и ServiceCatalog (через Service)
-            // А также менеджера и клиента (ApplicationUser) и статус заказа.
             return _context.Orders
                 .Include(o => o.OrderServices)
-                    .ThenInclude(os => os.Service) // <-- Подгружаем ServiceCatalog через свойство 'Service'
-                .Include(o => o.Status) // Подгружаем статус заказа
+                    .ThenInclude(os => os.Service)
+                .Include(o => o.Status)
                 .Where(o => o.MasterId == masterId);
-            
         }
 
         public Order GetOrderByOrderNumber(string orderNumber)

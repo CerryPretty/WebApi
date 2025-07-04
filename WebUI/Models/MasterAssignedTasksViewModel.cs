@@ -1,6 +1,4 @@
-﻿// WebUI/Models/MasterAssignedTasksViewModel.cs
-using System.Collections.Generic;
-
+﻿
 namespace WebUI.Models
 {
     public class MasterAssignedTasksViewModel

@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-// Удаляем Microsoft.AspNetCore.Mvc.Rendering, так как AvailableRoles больше нет в этой ViewModel
 
 namespace WebUI.Models
 {

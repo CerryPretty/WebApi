@@ -1,12 +1,10 @@
-﻿// WebUI.Models/ServiceCatalogViewModel.cs
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel; // For DisplayName attribute
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel; 
 
 namespace WebUI.Models
 {
     public class ServiceCatalogViewModel
     {
-        // Unique identifier for the service. Hidden from the user in most forms.
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Название услуги обязательно.")]
@@ -22,7 +20,7 @@ namespace WebUI.Models
 
         [StringLength(50, ErrorMessage = "Категория не может превышать 50 символов.")]
         [DisplayName("Категория")]
-        public string Category { get; set; } // E.g., "Ремонт телефонов", "Ремонт ноутбуков"
+        public string Category { get; set; } 
 
         [StringLength(500, ErrorMessage = "Описание не может превышать 500 символов.")]
         [DisplayName("Описание")]
@@ -30,6 +28,6 @@ namespace WebUI.Models
         public string Description { get; set; }
 
         [DisplayName("URL изображения")]
-        public string ImageUrl { get; set; } // Optional: URL to an image representing the service
+        public string ImageUrl { get; set; } 
     }
 }

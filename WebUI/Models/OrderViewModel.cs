@@ -1,7 +1,4 @@
 ﻿
-using System;
-using WebApi.Models; 
-
 namespace WebUI.Models
 {
     public class OrderViewModel

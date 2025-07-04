@@ -1,11 +1,9 @@
-﻿// In WebApi.Intarface/IOrderServiceService.cs
-using WebApi.Models;
+﻿using WebApi.Models;
 using System.Linq;
-using System.Threading.Tasks; // For async operations
+using System.Threading.Tasks; 
 
 namespace WebApi.Intarface
 {
-    // This interface specifically for the OrderService (the join entity)
     public interface IOrderServiceService : IService<OrderService>
     {
        

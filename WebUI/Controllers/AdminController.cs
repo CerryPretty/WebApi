@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Linq;
 using WebUI.Models;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Rendering; 
@@ -44,7 +41,6 @@ namespace WebUI.Controllers
             return View(users);
         }
 
-        // Existing EditUser and DeleteUser methods...
         [HttpGet]
         public async Task<IActionResult> EditUser(string id)
         {
@@ -88,11 +84,10 @@ namespace WebUI.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateUser()
         {
-            // Заполняем ViewData для списка ролей
             ViewData["AvailableRoles"] = (await _roleManager.Roles.ToListAsync())
                 .Select(r => new SelectListItem { Value = r.Name, Text = r.Name });
 
-            var model = new CreateUserViewModel(); // ViewModel теперь не содержит AvailableRoles
+            var model = new CreateUserViewModel();
             return View(model);
         }
 
@@ -100,7 +95,6 @@ namespace WebUI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(CreateUserViewModel model)
         {
-            // Всегда заполняем ViewData для списка ролей перед возвратом View
             ViewData["AvailableRoles"] = (await _roleManager.Roles.ToListAsync())
                 .Select(r => new SelectListItem { Value = r.Name, Text = r.Name });
 
@@ -224,7 +218,6 @@ namespace WebUI.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            // ErrorViewModel is typically found in the Models folder, ensure it exists or adjust
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }

@@ -1,6 +1,4 @@
-﻿// WebUI/Models/ReportProductionViewModel.cs
-using Microsoft.AspNetCore.Mvc.Rendering; // Для SelectListItem
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc.Rendering; 
 using System.ComponentModel.DataAnnotations;
 
 namespace WebUI.Models
@@ -21,9 +19,9 @@ namespace WebUI.Models
         [StringLength(1000, ErrorMessage = "Длина комментария не должна превышать 1000 символов.")]
         public string? MasterComments { get; set; }
 
-        [Display(Name = "Фактическая Стоимость")] // Единое поле для отображения и изменения стоимости
+        [Display(Name = "Фактическая Стоимость")] 
         [DataType(DataType.Currency)]
         [Range(0.00, 1000000.00, ErrorMessage = "Стоимость должна быть положительным числом или нулем.")]
-        public decimal? Cost { get; set; } // Может быть null, если не задана
+        public decimal? Cost { get; set; }
     }
 }

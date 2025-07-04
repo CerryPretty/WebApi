@@ -1,12 +1,10 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations; // Для валидации
+using System.ComponentModel.DataAnnotations; 
 
 namespace WebUI.Models
 {
     public class Order
     {
-        // Id будет генерироваться API для новых заказов.
-        // Используется здесь при получении существующих заказов.
         public int Id { get; set; }
 
         [Required(ErrorMessage = "User ID is required.")]
@@ -14,7 +12,7 @@ namespace WebUI.Models
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "Order Date is required.")]
-        [DataType(DataType.DateTime)] // Помогает с подсказками UI и валидацией
+        [DataType(DataType.DateTime)] 
         public DateTime OrderDate { get; set; }
 
         [Required(ErrorMessage = "Total Amount is required.")]
